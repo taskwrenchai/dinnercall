@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     }
 
     const response = await client.responses.create({
-      model: "gpt-5.4",
+      model: "gpt-4.1-mini",
       input: `You are a helpful recipe assistant for an app called DinnerCall.
 Create one simple dinner idea using these ingredients: ${ingredients}.
 
