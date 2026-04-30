@@ -18,16 +18,12 @@ export async function POST(req: Request) {
 
     const response = await client.responses.create({
       model: "gpt-4.1-mini",
-      input: `You are a helpful recipe assistant for an app called DinnerCall.
-Create one simple dinner idea using these ingredients: ${ingredients}.
-
-Return:
-1. Recipe name
-2. Short description
-3. Ingredients list
-4. Step-by-step instructions
-
-Keep it practical and concise.`,
+      input: `Create a simple, practical dinner recipe using these ingredients: ${ingredients}.
+Include:
+- Recipe name
+- Ingredients list
+- Step-by-step instructions
+- Keep it concise and realistic.`,
     });
 
     return NextResponse.json({
