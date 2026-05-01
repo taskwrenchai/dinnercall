@@ -37,7 +37,13 @@ export default function Home() {
   };
 
   return (
-    <main style={{ padding: "40px", fontFamily: "sans-serif", maxWidth: "800px" }}>
+    <main
+      style={{
+        padding: "40px",
+        fontFamily: "sans-serif",
+        maxWidth: "900px",
+      }}
+    >
       <h1>DinnerCall</h1>
       <p>What ingredients do you have?</p>
 
@@ -57,20 +63,22 @@ export default function Home() {
         {loading ? "Generating..." : "Generate Recipe"}
       </button>
 
-     {result && (
-  <div
-    style={{
-      marginTop: "30px",
-      whiteSpace: "pre-wrap",
-      background: "#111",
-      color: "#fff",
-      padding: "24px",
-      borderRadius: "12px",
-      lineHeight: "1.6",
-      maxWidth: "700px",
-    }}
-  >
-    {result}
-  </div>
-)}
+      {result && (
+        <div
+          style={{
+            marginTop: "30px",
+            whiteSpace: "pre-wrap",
+            background: "#111",
+            color: "#fff",
+            padding: "24px",
+            borderRadius: "12px",
+            lineHeight: "1.6",
+            maxWidth: "700px",
+          }}
+        >
+          {result}
+        </div>
+      )}
+    </main>
+  );
 }
