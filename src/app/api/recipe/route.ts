@@ -18,25 +18,27 @@ export async function POST(req: Request) {
 
     const response = await client.responses.create({
       model: "gpt-4.1-mini",
- input: `Create a simple, practical dinner recipe using these ingredients: ${ingredients}.
+      input: `
+Create a simple, practical dinner recipe using these ingredients: ${ingredients}.
 
-    Format your response EXACTLY like this:
+Format your response exactly like this:
 
-    Recipe Name:
-    <name>
+Recipe Name:
+<name>
 
-    Why this works:
-    <short explanation>
+Why this works:
+<short explanation>
 
-    Ingredients:
-    - item 1
-    - item 2
+Ingredients:
+- item 1
+- item 2
 
-    Instructions:
-    1. step one
-    2. step two
+Instructions:
+1. step one
+2. step two
 
-    Keep it clean, realistic, and easy for a normal home cook.`,
+Keep it clean, realistic, and easy for a normal home cook.
+      `,
     });
 
     return NextResponse.json({
@@ -44,6 +46,7 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error(error);
+
     return NextResponse.json(
       { error: "Something went wrong generating the recipe." },
       { status: 500 }
