@@ -57,20 +57,20 @@ export default function Home() {
         {loading ? "Generating..." : "Generate Recipe"}
       </button>
 
-      {result && (
-        <pre
-          style={{
-            marginTop: "20px",
-            whiteSpace: "pre-wrap",
-            background: "#111",
-            color: "#fff",
-            padding: "20px",
-            borderRadius: "8px",
-          }}
-        >
-          {result}
-        </pre>
-      )}
-    </main>
-  );
+     {result && (
+  <div
+    style={{
+      marginTop: "30px",
+      whiteSpace: "pre-wrap",
+      background: "#111",
+      color: "#fff",
+      padding: "24px",
+      borderRadius: "12px",
+      lineHeight: "1.6",
+      maxWidth: "700px",
+    }}
+  >
+    {result}
+  </div>
+)}
 }
