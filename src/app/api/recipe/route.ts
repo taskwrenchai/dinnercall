@@ -19,17 +19,36 @@ export async function POST(req: Request) {
     const response = await client.responses.create({
       model: "gpt-4.1-mini",
       input: `
-Create one simple dinner recipe using these ingredients: ${ingredients}.
+Create a simple but genuinely GOOD dinner recipe using these ingredients: ${ingredients}.
 
-Return ONLY valid JSON in this exact shape:
-{
-  "name": "Recipe name",
-  "why": "Short explanation of why this works",
-  "ingredients": ["item 1", "item 2"],
-  "steps": ["step one", "step two"]
-}
+The recipe should feel like advice from a smart home cook, not a generic AI.
 
-No markdown. No extra text.
+Use:
+- better flavor combinations
+- seasoning suggestions
+- easy upgrades
+- practical cooking techniques
+- realistic cooking instructions
+
+Avoid bland or overly basic directions.
+
+Format your response EXACTLY like this:
+
+Recipe Name:
+<name>
+
+Why this works:
+<short explanation>
+
+Ingredients:
+- item 1
+- item 2
+
+Instructions:
+1. step one
+2. step two
+
+Keep it clean, realistic, flavorful, and easy for a normal home cook.
       `,
     });
 
