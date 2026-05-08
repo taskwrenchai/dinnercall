@@ -25,9 +25,7 @@ export default function Home() {
     try {
       const res = await fetch("/api/recipe", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ingredients }),
       });
 
@@ -46,56 +44,136 @@ export default function Home() {
   };
 
   return (
-    <main style={{ padding: "40px", fontFamily: "sans-serif", maxWidth: "900px" }}>
-      <h1>DinnerCall</h1>
-      <p>What ingredients do you have?</p>
+    <main
+      style={{
+        minHeight: "100vh",
+        background: "#F7F6F1",
+        color: "#1F2933",
+        fontFamily: "Arial, sans-serif",
+        padding: "48px 24px",
+      }}
+    >
+      <section style={{ maxWidth: "900px", margin: "0 auto" }}>
+        <div style={{ marginBottom: "36px" }}>
+          <p
+            style={{
+              color: "#6B8F71",
+              fontWeight: "bold",
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              fontSize: "14px",
+            }}
+          >
+            DinnerCall
+          </p>
 
-      <input
-        type="text"
-        placeholder="chicken, rice, broccoli..."
-        value={ingredients}
-        onChange={(e) => setIngredients(e.target.value)}
-        style={{ padding: "10px", width: "320px", marginRight: "10px" }}
-      />
+          <h1 style={{ fontSize: "48px", margin: "0 0 12px" }}>
+            What’s for dinner?
+          </h1>
 
-      <button onClick={handleClick} style={{ padding: "10px" }} disabled={loading}>
-        {loading ? "Generating..." : "Generate Recipe"}
-      </button>
+          <p style={{ fontSize: "20px", color: "#52616B", maxWidth: "620px" }}>
+            Tell us what you have, and we’ll turn it into a simple dinner idea.
+          </p>
+        </div>
 
-      {error && <p style={{ color: "red", marginTop: "20px" }}>{error}</p>}
-
-      {recipe && (
-        <section
+        <div
           style={{
-            marginTop: "30px",
-            background: "#111",
-            color: "#fff",
-            padding: "24px",
-            borderRadius: "12px",
-            lineHeight: "1.6",
-            maxWidth: "700px",
+            background: "#FFFFFF",
+            padding: "28px",
+            borderRadius: "18px",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+            marginBottom: "28px",
           }}
         >
-          <h2>{recipe.name}</h2>
+          <label
+            style={{
+              display: "block",
+              fontWeight: "bold",
+              marginBottom: "10px",
+            }}
+          >
+            Ingredients on hand
+          </label>
 
-          <h3>Why this works</h3>
-          <p>{recipe.why}</p>
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            <input
+              type="text"
+              placeholder="chicken, rice, broccoli..."
+              value={ingredients}
+              onChange={(e) => setIngredients(e.target.value)}
+              style={{
+                flex: "1",
+                minWidth: "260px",
+                padding: "14px",
+                borderRadius: "10px",
+                border: "1px solid #D9DED6",
+                fontSize: "16px",
+              }}
+            />
 
-          <h3>Ingredients</h3>
-          <ul>
-            {recipe.ingredients.map((item, index) => (
-              <li key={index}>{item}</li>
-            ))}
-          </ul>
+            <button
+              onClick={handleClick}
+              disabled={loading}
+              style={{
+                padding: "14px 22px",
+                borderRadius: "10px",
+                border: "none",
+                background: "#6B8F71",
+                color: "white",
+                fontSize: "16px",
+                fontWeight: "bold",
+                cursor: loading ? "not-allowed" : "pointer",
+              }}
+            >
+              {loading ? "Thinking..." : "Generate Recipe"}
+            </button>
+          </div>
+        </div>
 
-          <h3>Instructions</h3>
-          <ol>
-            {recipe.steps.map((step, index) => (
-              <li key={index}>{step}</li>
-            ))}
-          </ol>
-        </section>
-      )}
+        {error && (
+          <p style={{ color: "#B42318", fontWeight: "bold" }}>{error}</p>
+        )}
+
+        {recipe && (
+          <section
+            style={{
+              background: "#FFFFFF",
+              padding: "32px",
+              borderRadius: "18px",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+            }}
+          >
+            <p
+              style={{
+                color: "#6B8F71",
+                fontWeight: "bold",
+                marginBottom: "8px",
+              }}
+            >
+              Tonight’s DinnerCall
+            </p>
+
+            <h2 style={{ fontSize: "32px", marginTop: 0 }}>{recipe.name}</h2>
+
+            <h3>Why this works</h3>
+            <p style={{ color: "#52616B", lineHeight: "1.7" }}>{recipe.why}</p>
+
+            <h3>Ingredients</h3>
+            <ul style={{ lineHeight: "1.8" }}>
+              {recipe.ingredients.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
+            </ul>
+
+            <h3>Instructions</h3>
+            <ol style={{ lineHeight: "1.8" }}>
+              {recipe.steps.map((step, index) => (
+                <li key={index}>{step}</li>
+              ))}
+            </ol>
+          </section>
+        )}
+      </section>
     </main>
   );
 }
