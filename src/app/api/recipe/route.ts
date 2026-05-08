@@ -19,31 +19,23 @@ export async function POST(req: Request) {
     const response = await client.responses.create({
       model: "gpt-4.1-mini",
       input: `
-Create a simple, practical dinner recipe using these ingredients: ${ingredients}.
+Create one simple dinner recipe using these ingredients: ${ingredients}.
 
-Format your response exactly like this:
+Return ONLY valid JSON in this exact shape:
+{
+  "name": "Recipe name",
+  "why": "Short explanation of why this works",
+  "ingredients": ["item 1", "item 2"],
+  "steps": ["step one", "step two"]
+}
 
-Recipe Name:
-<name>
-
-Why this works:
-<short explanation>
-
-Ingredients:
-- item 1
-- item 2
-
-Instructions:
-1. step one
-2. step two
-
-Keep it clean, realistic, and easy for a normal home cook.
+No markdown. No extra text.
       `,
     });
 
-    return NextResponse.json({
-      recipe: response.output_text,
-    });
+    const recipe = JSON.parse(response.output_text);
+
+    return NextResponse.json({ recipe });
   } catch (error) {
     console.error(error);
 
