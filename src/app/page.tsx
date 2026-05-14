@@ -158,19 +158,25 @@ export default function Home() {
             <h3>Why this works</h3>
             <p style={{ color: "#52616B", lineHeight: "1.7" }}>{recipe.why}</p>
 
-            <h3>Ingredients</h3>
-            <ul style={{ lineHeight: "1.8" }}>
-              {recipe.ingredients.map((item, index) => (
-                <li key={index}>{item}</li>
-              ))}
-            </ul>
+            <h3 style={{ marginTop: "32px", fontSize: "28px" }}>Ingredients</h3>
 
-            <h3>Instructions</h3>
-            <ol style={{ lineHeight: "1.8" }}>
-              {recipe.steps.map((step, index) => (
-                <li key={index}>{step}</li>
-              ))}
-            </ol>
+<ul style={{ paddingLeft: "24px", marginTop: "16px", lineHeight: "1.8" }}>
+  {recipe.ingredients.map((item, index) => (
+    <li key={index} style={{ marginBottom: "10px", fontSize: "20px" }}>
+      {item}
+    </li>
+  ))}
+</ul>
+
+           <h3 style={{ marginTop: "40px", fontSize: "28px" }}>Instructions</h3>
+
+<ol style={{ paddingLeft: "24px", marginTop: "16px" }}>
+  {recipe.steps.map((step, index) => (
+    <li key={index} style={{ marginBottom: "22px", lineHeight: "1.8", fontSize: "20px" }}>
+      {step}
+    </li>
+  ))}
+</ol>
           </section>
         )}
       </section>
