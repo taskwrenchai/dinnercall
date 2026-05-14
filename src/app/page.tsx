@@ -101,6 +101,11 @@ export default function Home() {
               placeholder="chicken, rice, broccoli..."
               value={ingredients}
               onChange={(e) => setIngredients(e.target.value)}
+              onKeyDown={(e) => {
+             if (e.key === "Enter" && !loading) {
+               handleClick();
+               }
+               }}
               style={{
                 flex: "1",
                 minWidth: "260px",
