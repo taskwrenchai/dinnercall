@@ -166,12 +166,13 @@ export default function Home() {
             <h3 style={{ marginTop: "32px", fontSize: "28px" }}>Ingredients</h3>
 
 <ul style={{ paddingLeft: "24px", marginTop: "16px", lineHeight: "1.8" }}>
-  {recipe.ingredients.map((item, index) => (
-    <li key={index} style={{ marginBottom: "10px", fontSize: "20px" }}>
-      {item}
+  <ol style={{ paddingLeft: "20px", lineHeight: "1.8" }}>
+  {recipe.instructions.map((step, index) => (
+    <li key={index} style={{ marginBottom: "12px" }}>
+      {step}
     </li>
   ))}
-</ul>
+</ol>
 
            <h3 style={{ marginTop: "40px", fontSize: "28px" }}>Instructions</h3>
 
