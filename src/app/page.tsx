@@ -158,8 +158,6 @@ export default function Home() {
   ))}
 </div>
 
-        </div>
-
         {error && (
           <p style={{ color: "#B42318", fontWeight: "bold" }}>{error}</p>
         )}
