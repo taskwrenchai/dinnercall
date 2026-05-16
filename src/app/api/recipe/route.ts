@@ -7,7 +7,7 @@ const client = new OpenAI({
 
 export async function POST(req: Request) {
   try {
-    const { ingredients } = await req.json();
+const { ingredients, servings } = await req.json();
 
     if (!ingredients || !ingredients.trim()) {
       return NextResponse.json(
@@ -20,6 +20,8 @@ export async function POST(req: Request) {
       model: "gpt-4.1-mini",
       input: `
 Create one simple but genuinely GOOD dinner recipe using these ingredients: ${ingredients}.
+
+Make the recipe for ${servings || "4"} servings.
 
 The recipe should feel like advice from a smart home cook, not a generic AI.
 

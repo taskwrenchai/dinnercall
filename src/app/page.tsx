@@ -14,6 +14,7 @@ export default function Home() {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+const [servings, setServings] = useState("4");
 
   const handleClick = async () => {
     if (!ingredients.trim()) return;
@@ -26,7 +27,7 @@ export default function Home() {
       const res = await fetch("/api/recipe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ingredients }),
+        body: JSON.stringify({ ingredients, servings }),
       });
 
       const data = await res.json();
@@ -115,6 +116,21 @@ export default function Home() {
                 fontSize: "16px",
               }}
             />
+
+<select
+  value={servings}
+  onChange={(e) => setServings(e.target.value)}
+  style={{
+    padding: "14px",
+    borderRadius: "10px",
+    border: "1px solid #D9DED6",
+    fontSize: "16px",
+  }}
+>
+  <option value="2">2 servings</option>
+  <option value="4">4 servings</option>
+  <option value="6">6 servings</option>
+</select>
 
             <button
               onClick={handleClick}
