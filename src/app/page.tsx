@@ -183,7 +183,13 @@ export default function Home() {
               Instructions
             </h3>
 
-            <ol style={{ paddingLeft: "24px", lineHeight: "1.8" }}>
+            <ol
+  style={{
+    paddingLeft: "24px",
+    lineHeight: "1.8",
+    listStyleType: "decimal",
+  }}
+>
               {recipe.steps.map((step, index) => (
                 <li key={index} style={{ marginBottom: "12px" }}>
                   {step}
