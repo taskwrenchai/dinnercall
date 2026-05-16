@@ -6,7 +6,7 @@ type Recipe = {
   name: string;
   why: string;
   ingredients: string[];
-  instructions: string[];
+  steps: string[];
 };
 
 export default function Home() {
@@ -184,7 +184,7 @@ export default function Home() {
             </h3>
 
             <ol style={{ paddingLeft: "24px", lineHeight: "1.8" }}>
-              {recipe.instructions.map((step, index) => (
+              {recipe.steps.map((step, index) => (
                 <li key={index} style={{ marginBottom: "12px" }}>
                   {step}
                 </li>
