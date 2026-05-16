@@ -133,6 +133,31 @@ export default function Home() {
               {loading ? "Thinking..." : "Generate Recipe"}
             </button>
           </div>
+          </div>
+
+<div style={{ marginTop: "16px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+  {[
+    "chicken, rice, broccoli",
+    "ground beef, tortillas, cheese",
+    "salmon, potatoes, asparagus",
+  ].map((example) => (
+    <button
+      key={example}
+      onClick={() => setIngredients(example)}
+      style={{
+        padding: "8px 12px",
+        borderRadius: "999px",
+        border: "1px solid #D9DED6",
+        background: "#F7F6F1",
+        color: "#52616B",
+        cursor: "pointer",
+      }}
+    >
+      {example}
+    </button>
+  ))}
+</div>
+
         </div>
 
         {error && (
