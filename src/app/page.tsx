@@ -293,27 +293,58 @@ export default function Home() {
           >
             <h2 style={{ marginTop: 0 }}>Saved Recipes</h2>
 
-            {savedRecipes.map((savedRecipe, index) => (
-  <button
+{savedRecipes.map((savedRecipe, index) => (
+  <div
     key={index}
-    onClick={() => setRecipe(savedRecipe)}
     style={{
-      width: "100%",
-      textAlign: "left",
+      display: "flex",
+      gap: "12px",
+      alignItems: "flex-start",
       padding: "16px 0",
-      border: "none",
       borderTop: index === 0 ? "none" : "1px solid #E5E7EB",
-      background: "transparent",
-      cursor: "pointer",
     }}
   >
-    <strong style={{ fontSize: "16px", color: "#1F2933" }}>
-      {savedRecipe.name}
-    </strong>
-    <p style={{ color: "#52616B", marginBottom: 0 }}>
-      {savedRecipe.why}
-    </p>
-  </button>
+    <button
+      onClick={() => setRecipe(savedRecipe)}
+      style={{
+        flex: 1,
+        textAlign: "left",
+        border: "none",
+        background: "transparent",
+        cursor: "pointer",
+        padding: 0,
+      }}
+    >
+      <strong style={{ fontSize: "16px", color: "#1F2933" }}>
+        {savedRecipe.name}
+      </strong>
+      <p style={{ color: "#52616B", marginBottom: 0 }}>
+        {savedRecipe.why}
+      </p>
+    </button>
+
+    <button
+      onClick={() => {
+        const updatedRecipes = savedRecipes.filter((_, savedIndex) => savedIndex !== index);
+        setSavedRecipes(updatedRecipes);
+        localStorage.setItem(
+          "dinnercall_saved_recipes",
+          JSON.stringify(updatedRecipes)
+        );
+      }}
+      style={{
+        padding: "8px 10px",
+        borderRadius: "8px",
+        border: "1px solid #E5E7EB",
+        background: "#FFFFFF",
+        color: "#B42318",
+        cursor: "pointer",
+        fontWeight: "bold",
+      }}
+    >
+      Delete
+    </button>
+  </div>
 ))}
           </section>
         )}
