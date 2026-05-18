@@ -16,6 +16,7 @@ export default function Home() {
   const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("dinnercall_saved_recipes");
@@ -35,12 +36,44 @@ export default function Home() {
     );
   };
 
+  const deleteRecipe = (index: number) => {
+    const updatedRecipes = savedRecipes.filter((_, savedIndex) => savedIndex !== index);
+    setSavedRecipes(updatedRecipes);
+    localStorage.setItem(
+      "dinnercall_saved_recipes",
+      JSON.stringify(updatedRecipes)
+    );
+  };
+
+  const copyRecipe = async () => {
+    if (!recipe) return;
+
+    const recipeText = `${recipe.name}
+
+Why this works:
+${recipe.why}
+
+Ingredients:
+${recipe.ingredients.map((item) => `- ${item}`).join("\n")}
+
+Instructions:
+${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
+
+    await navigator.clipboard.writeText(recipeText);
+    setCopied(true);
+
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
+  };
+
   const handleClick = async () => {
     if (!ingredients.trim()) return;
 
     setLoading(true);
     setRecipe(null);
     setError("");
+    setCopied(false);
 
     try {
       const res = await fetch("/api/recipe", {
@@ -263,22 +296,39 @@ export default function Home() {
               ))}
             </ol>
 
-            <button
-              onClick={saveRecipe}
-              style={{
-                marginTop: "24px",
-                padding: "12px 18px",
-                borderRadius: "10px",
-                border: "none",
-                background: "#6B8F71",
-                color: "white",
-                fontSize: "15px",
-                fontWeight: "bold",
-                cursor: "pointer",
-              }}
-            >
-              Save Recipe
-            </button>
+            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginTop: "24px" }}>
+              <button
+                onClick={saveRecipe}
+                style={{
+                  padding: "12px 18px",
+                  borderRadius: "10px",
+                  border: "none",
+                  background: "#6B8F71",
+                  color: "white",
+                  fontSize: "15px",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                }}
+              >
+                Save Recipe
+              </button>
+
+              <button
+                onClick={copyRecipe}
+                style={{
+                  padding: "12px 18px",
+                  borderRadius: "10px",
+                  border: "1px solid #D9DED6",
+                  background: "#FFFFFF",
+                  color: "#1F2933",
+                  fontSize: "15px",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                }}
+              >
+                {copied ? "Copied!" : "Copy Recipe"}
+              </button>
+            </div>
           </section>
         )}
 
@@ -293,59 +343,52 @@ export default function Home() {
           >
             <h2 style={{ marginTop: 0 }}>Saved Recipes</h2>
 
-{savedRecipes.map((savedRecipe, index) => (
-  <div
-    key={index}
-    style={{
-      display: "flex",
-      gap: "12px",
-      alignItems: "flex-start",
-      padding: "16px 0",
-      borderTop: index === 0 ? "none" : "1px solid #E5E7EB",
-    }}
-  >
-    <button
-      onClick={() => setRecipe(savedRecipe)}
-      style={{
-        flex: 1,
-        textAlign: "left",
-        border: "none",
-        background: "transparent",
-        cursor: "pointer",
-        padding: 0,
-      }}
-    >
-      <strong style={{ fontSize: "16px", color: "#1F2933" }}>
-        {savedRecipe.name}
-      </strong>
-      <p style={{ color: "#52616B", marginBottom: 0 }}>
-        {savedRecipe.why}
-      </p>
-    </button>
+            {savedRecipes.map((savedRecipe, index) => (
+              <div
+                key={index}
+                style={{
+                  display: "flex",
+                  gap: "12px",
+                  alignItems: "flex-start",
+                  padding: "16px 0",
+                  borderTop: index === 0 ? "none" : "1px solid #E5E7EB",
+                }}
+              >
+                <button
+                  onClick={() => setRecipe(savedRecipe)}
+                  style={{
+                    flex: 1,
+                    textAlign: "left",
+                    border: "none",
+                    background: "transparent",
+                    cursor: "pointer",
+                    padding: 0,
+                  }}
+                >
+                  <strong style={{ fontSize: "16px", color: "#1F2933" }}>
+                    {savedRecipe.name}
+                  </strong>
+                  <p style={{ color: "#52616B", marginBottom: 0 }}>
+                    {savedRecipe.why}
+                  </p>
+                </button>
 
-    <button
-      onClick={() => {
-        const updatedRecipes = savedRecipes.filter((_, savedIndex) => savedIndex !== index);
-        setSavedRecipes(updatedRecipes);
-        localStorage.setItem(
-          "dinnercall_saved_recipes",
-          JSON.stringify(updatedRecipes)
-        );
-      }}
-      style={{
-        padding: "8px 10px",
-        borderRadius: "8px",
-        border: "1px solid #E5E7EB",
-        background: "#FFFFFF",
-        color: "#B42318",
-        cursor: "pointer",
-        fontWeight: "bold",
-      }}
-    >
-      Delete
-    </button>
-  </div>
-))}
+                <button
+                  onClick={() => deleteRecipe(index)}
+                  style={{
+                    padding: "8px 10px",
+                    borderRadius: "8px",
+                    border: "1px solid #E5E7EB",
+                    background: "#FFFFFF",
+                    color: "#B42318",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
           </section>
         )}
       </section>
