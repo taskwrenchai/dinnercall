@@ -134,13 +134,7 @@ ${recipe.steps
             DinnerCall
           </p>
 
-          <h1
-            style={{
-              fontSize: "clamp(36px, 7vw, 56px)",
-              lineHeight: "1.05",
-              margin: "0 0 16px",
-            }}
-          >
+
 <img
   src="/dinnercall-logo.png"
   alt="DinnerCall Logo"
@@ -150,6 +144,13 @@ ${recipe.steps
   }}
 />
 
+<h1
+  style={{
+    fontSize: "clamp(36px, 7vw, 56px)",
+    lineHeight: "1.05",
+    margin: "0 0 16px",
+  }}
+>
             What’s for dinner?
           </h1>
 
