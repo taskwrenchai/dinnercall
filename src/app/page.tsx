@@ -30,6 +30,7 @@ export default function Home() {
 
     const updatedRecipes = [recipe, ...savedRecipes];
     setSavedRecipes(updatedRecipes);
+
     localStorage.setItem(
       "dinnercall_saved_recipes",
       JSON.stringify(updatedRecipes)
@@ -37,8 +38,12 @@ export default function Home() {
   };
 
   const deleteRecipe = (index: number) => {
-    const updatedRecipes = savedRecipes.filter((_, savedIndex) => savedIndex !== index);
+    const updatedRecipes = savedRecipes.filter(
+      (_, savedIndex) => savedIndex !== index
+    );
+
     setSavedRecipes(updatedRecipes);
+
     localStorage.setItem(
       "dinnercall_saved_recipes",
       JSON.stringify(updatedRecipes)
@@ -57,9 +62,12 @@ Ingredients:
 ${recipe.ingredients.map((item) => `- ${item}`).join("\n")}
 
 Instructions:
-${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
+${recipe.steps
+  .map((step, index) => `${index + 1}. ${step}`)
+  .join("\n")}`;
 
     await navigator.clipboard.writeText(recipeText);
+
     setCopied(true);
 
     setTimeout(() => {
@@ -103,28 +111,47 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
         background: "#F7F6F1",
         color: "#1F2933",
         fontFamily: "Arial, sans-serif",
-        padding: "48px 24px",
+        padding: "24px 16px",
       }}
     >
-      <section style={{ maxWidth: "900px", margin: "0 auto" }}>
-        <div style={{ marginBottom: "36px" }}>
+      <section
+        style={{
+          maxWidth: "900px",
+          margin: "0 auto",
+        }}
+      >
+        <div style={{ marginBottom: "32px" }}>
           <p
             style={{
               color: "#6B8F71",
               fontWeight: "bold",
               letterSpacing: "0.08em",
               textTransform: "uppercase",
-              fontSize: "14px",
+              fontSize: "13px",
+              marginBottom: "12px",
             }}
           >
             DinnerCall
           </p>
 
-          <h1 style={{ fontSize: "48px", margin: "0 0 12px" }}>
+          <h1
+            style={{
+              fontSize: "clamp(36px, 7vw, 56px)",
+              lineHeight: "1.05",
+              margin: "0 0 16px",
+            }}
+          >
             What’s for dinner?
           </h1>
 
-          <p style={{ fontSize: "20px", color: "#52616B", maxWidth: "620px" }}>
+          <p
+            style={{
+              fontSize: "clamp(18px, 3vw, 22px)",
+              color: "#52616B",
+              maxWidth: "620px",
+              lineHeight: "1.6",
+            }}
+          >
             Tell us what you have, and we’ll turn it into a simple dinner idea.
           </p>
         </div>
@@ -132,23 +159,31 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
         <div
           style={{
             background: "#FFFFFF",
-            padding: "28px",
-            borderRadius: "18px",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+            padding: "24px",
+            borderRadius: "22px",
+            boxShadow: "0 10px 35px rgba(0,0,0,0.06)",
             marginBottom: "28px",
+            border: "1px solid #ECEEE9",
           }}
         >
           <label
             style={{
               display: "block",
               fontWeight: "bold",
-              marginBottom: "10px",
+              marginBottom: "12px",
+              fontSize: "15px",
             }}
           >
             Ingredients on hand
           </label>
 
-          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "12px",
+              flexWrap: "wrap",
+            }}
+          >
             <input
               type="text"
               placeholder="chicken, rice, broccoli..."
@@ -161,9 +196,9 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
               }}
               style={{
                 flex: "1",
-                minWidth: "260px",
-                padding: "14px",
-                borderRadius: "10px",
+                minWidth: "240px",
+                padding: "16px",
+                borderRadius: "12px",
                 border: "1px solid #D9DED6",
                 fontSize: "16px",
               }}
@@ -173,10 +208,11 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
               value={servings}
               onChange={(e) => setServings(e.target.value)}
               style={{
-                padding: "14px",
-                borderRadius: "10px",
+                padding: "16px",
+                borderRadius: "12px",
                 border: "1px solid #D9DED6",
                 fontSize: "16px",
+                background: "#FFFFFF",
               }}
             >
               <option value="2">2 servings</option>
@@ -188,14 +224,15 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
               onClick={handleClick}
               disabled={loading}
               style={{
-                padding: "14px 22px",
-                borderRadius: "10px",
+                padding: "16px 22px",
+                borderRadius: "12px",
                 border: "none",
                 background: "#6B8F71",
                 color: "white",
                 fontSize: "16px",
                 fontWeight: "bold",
                 cursor: loading ? "not-allowed" : "pointer",
+                minWidth: "170px",
               }}
             >
               {loading ? "Thinking..." : "Generate Recipe"}
@@ -204,7 +241,7 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
 
           <div
             style={{
-              marginTop: "16px",
+              marginTop: "18px",
               display: "flex",
               gap: "10px",
               flexWrap: "wrap",
@@ -219,12 +256,13 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
                 key={example}
                 onClick={() => setIngredients(example)}
                 style={{
-                  padding: "8px 12px",
+                  padding: "10px 14px",
                   borderRadius: "999px",
                   border: "1px solid #D9DED6",
                   background: "#F7F6F1",
                   color: "#52616B",
                   cursor: "pointer",
+                  fontSize: "14px",
                 }}
               >
                 {example}
@@ -234,7 +272,15 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
         </div>
 
         {error && (
-          <p style={{ color: "#B42318", fontWeight: "bold" }}>{error}</p>
+          <p
+            style={{
+              color: "#B42318",
+              fontWeight: "bold",
+              marginBottom: "24px",
+            }}
+          >
+            {error}
+          </p>
         )}
 
         {recipe && (
@@ -242,66 +288,112 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
             style={{
               background: "#FFFFFF",
               padding: "32px",
-              borderRadius: "18px",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+              borderRadius: "22px",
+              boxShadow: "0 10px 35px rgba(0,0,0,0.06)",
               marginBottom: "28px",
+              border: "1px solid #ECEEE9",
             }}
           >
             <p
               style={{
                 color: "#6B8F71",
                 fontWeight: "bold",
-                marginBottom: "8px",
+                marginBottom: "10px",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                fontSize: "13px",
               }}
             >
               Tonight’s DinnerCall
             </p>
 
-            <h2 style={{ fontSize: "32px", marginTop: 0 }}>{recipe.name}</h2>
+            <h2
+              style={{
+                fontSize: "clamp(28px, 5vw, 42px)",
+                marginTop: 0,
+                marginBottom: "20px",
+                lineHeight: "1.1",
+              }}
+            >
+              {recipe.name}
+            </h2>
 
-            <h3>Why this works</h3>
-            <p style={{ color: "#52616B", lineHeight: "1.7" }}>{recipe.why}</p>
+            <h3 style={{ fontSize: "24px", marginBottom: "10px" }}>
+              Why this works
+            </h3>
 
-            <h3 style={{ marginTop: "32px", fontSize: "28px" }}>
+            <p
+              style={{
+                color: "#52616B",
+                lineHeight: "1.8",
+                fontSize: "17px",
+              }}
+            >
+              {recipe.why}
+            </p>
+
+            <h3
+              style={{
+                marginTop: "36px",
+                marginBottom: "12px",
+                fontSize: "24px",
+              }}
+            >
               Ingredients
             </h3>
 
             <ul
               style={{
                 paddingLeft: "24px",
-                marginTop: "16px",
-                lineHeight: "1.8",
+                lineHeight: "1.9",
+                fontSize: "17px",
               }}
             >
               {recipe.ingredients.map((item, index) => (
-                <li key={index}>{item}</li>
+                <li key={index} style={{ marginBottom: "6px" }}>
+                  {item}
+                </li>
               ))}
             </ul>
 
-            <h3 style={{ marginTop: "40px", fontSize: "28px" }}>
+            <h3
+              style={{
+                marginTop: "40px",
+                marginBottom: "12px",
+                fontSize: "24px",
+              }}
+            >
               Instructions
             </h3>
 
             <ol
               style={{
                 paddingLeft: "24px",
-                lineHeight: "1.8",
+                lineHeight: "1.9",
                 listStyleType: "decimal",
+                fontSize: "17px",
               }}
             >
               {recipe.steps.map((step, index) => (
-                <li key={index} style={{ marginBottom: "12px" }}>
+                <li key={index} style={{ marginBottom: "16px" }}>
                   {step}
                 </li>
               ))}
             </ol>
 
-            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginTop: "24px" }}>
+            <div
+              style={{
+                display: "flex",
+                gap: "12px",
+                flexWrap: "wrap",
+                marginTop: "28px",
+              }}
+            >
               <button
                 onClick={saveRecipe}
                 style={{
-                  padding: "12px 18px",
-                  borderRadius: "10px",
+                  padding: "14px 18px",
+                  borderRadius: "12px",
                   border: "none",
                   background: "#6B8F71",
                   color: "white",
@@ -316,8 +408,8 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
               <button
                 onClick={copyRecipe}
                 style={{
-                  padding: "12px 18px",
-                  borderRadius: "10px",
+                  padding: "14px 18px",
+                  borderRadius: "12px",
                   border: "1px solid #D9DED6",
                   background: "#FFFFFF",
                   color: "#1F2933",
@@ -337,11 +429,29 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
             style={{
               background: "#FFFFFF",
               padding: "28px",
-              borderRadius: "18px",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+              borderRadius: "22px",
+              boxShadow: "0 10px 35px rgba(0,0,0,0.06)",
+              border: "1px solid #ECEEE9",
             }}
           >
-            <h2 style={{ marginTop: 0 }}>Saved Recipes</h2>
+            <h2
+              style={{
+                marginTop: 0,
+                marginBottom: "8px",
+                fontSize: "32px",
+              }}
+            >
+              Saved Recipes
+            </h2>
+
+            <p
+              style={{
+                color: "#52616B",
+                marginBottom: "24px",
+              }}
+            >
+              Your favorite DinnerCalls.
+            </p>
 
             {savedRecipes.map((savedRecipe, index) => (
               <div
@@ -350,8 +460,9 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
                   display: "flex",
                   gap: "12px",
                   alignItems: "flex-start",
-                  padding: "16px 0",
-                  borderTop: index === 0 ? "none" : "1px solid #E5E7EB",
+                  padding: "18px 0",
+                  borderTop:
+                    index === 0 ? "none" : "1px solid #E5E7EB",
                 }}
               >
                 <button
@@ -365,10 +476,23 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
                     padding: 0,
                   }}
                 >
-                  <strong style={{ fontSize: "16px", color: "#1F2933" }}>
+                  <strong
+                    style={{
+                      fontSize: "18px",
+                      color: "#1F2933",
+                    }}
+                  >
                     {savedRecipe.name}
                   </strong>
-                  <p style={{ color: "#52616B", marginBottom: 0 }}>
+
+                  <p
+                    style={{
+                      color: "#52616B",
+                      marginBottom: 0,
+                      marginTop: "6px",
+                      lineHeight: "1.6",
+                    }}
+                  >
                     {savedRecipe.why}
                   </p>
                 </button>
@@ -376,8 +500,8 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
                 <button
                   onClick={() => deleteRecipe(index)}
                   style={{
-                    padding: "8px 10px",
-                    borderRadius: "8px",
+                    padding: "8px 12px",
+                    borderRadius: "10px",
                     border: "1px solid #E5E7EB",
                     background: "#FFFFFF",
                     color: "#B42318",
