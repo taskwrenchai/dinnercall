@@ -121,26 +121,13 @@ ${recipe.steps
         }}
       >
         <div style={{ marginBottom: "32px" }}>
-          <p
-            style={{
-              color: "#6B8F71",
-              fontWeight: "bold",
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              fontSize: "13px",
-              marginBottom: "12px",
-            }}
-          >
-            DinnerCall
-          </p>
-
-
+         
 <img
   src="/dinnercall-logo-v2.png"
   alt="DinnerCall Logo"
   style={{
     width: "340px",
-    marginBottom: "20px",
+    marginBottom: "48px",
   }}
 />
 
