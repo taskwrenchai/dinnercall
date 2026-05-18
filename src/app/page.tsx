@@ -494,6 +494,25 @@ ${recipe.steps
                   </p>
                 </button>
 
+{recipe && (
+  <button
+    onClick={() => setRecipe(null)}
+    style={{
+      marginTop: "24px",
+      padding: "12px 18px",
+      borderRadius: "10px",
+      border: "1px solid #D9DED6",
+      background: "#FFFFFF",
+      color: "#52616B",
+      fontSize: "15px",
+      fontWeight: "600",
+      cursor: "pointer",
+    }}
+  >
+    Clear Recipe
+  </button>
+)}
+
                 <button
                   onClick={() => deleteRecipe(index)}
                   style={{
