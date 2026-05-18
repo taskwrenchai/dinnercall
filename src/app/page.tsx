@@ -141,6 +141,15 @@ ${recipe.steps
               margin: "0 0 16px",
             }}
           >
+<img
+  src="/dinnercall-logo.png"
+  alt="DinnerCall Logo"
+  style={{
+    width: "72px",
+    marginBottom: "20px",
+  }}
+/>
+
             What’s for dinner?
           </h1>
 
