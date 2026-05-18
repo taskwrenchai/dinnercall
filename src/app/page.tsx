@@ -294,19 +294,27 @@ export default function Home() {
             <h2 style={{ marginTop: 0 }}>Saved Recipes</h2>
 
             {savedRecipes.map((savedRecipe, index) => (
-              <div
-                key={index}
-                style={{
-                  padding: "16px 0",
-                  borderTop: index === 0 ? "none" : "1px solid #E5E7EB",
-                }}
-              >
-                <strong>{savedRecipe.name}</strong>
-                <p style={{ color: "#52616B", marginBottom: 0 }}>
-                  {savedRecipe.why}
-                </p>
-              </div>
-            ))}
+  <button
+    key={index}
+    onClick={() => setRecipe(savedRecipe)}
+    style={{
+      width: "100%",
+      textAlign: "left",
+      padding: "16px 0",
+      border: "none",
+      borderTop: index === 0 ? "none" : "1px solid #E5E7EB",
+      background: "transparent",
+      cursor: "pointer",
+    }}
+  >
+    <strong style={{ fontSize: "16px", color: "#1F2933" }}>
+      {savedRecipe.name}
+    </strong>
+    <p style={{ color: "#52616B", marginBottom: 0 }}>
+      {savedRecipe.why}
+    </p>
+  </button>
+))}
           </section>
         )}
       </section>
