@@ -139,7 +139,7 @@ ${recipe.steps
   src="/dinnercall-logo-v2.png"
   alt="DinnerCall Logo"
   style={{
-    width: "72px",
+    width: "340px",
     marginBottom: "20px",
   }}
 />
