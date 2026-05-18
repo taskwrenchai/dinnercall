@@ -136,7 +136,7 @@ ${recipe.steps
 
 
 <img
-  src="/dinnercall-logo.png"
+  src="/dinnercall-logo-v2.png"
   alt="DinnerCall Logo"
   style={{
     width: "72px",
