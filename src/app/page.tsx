@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Recipe = {
   name: string;
@@ -11,10 +11,29 @@ type Recipe = {
 
 export default function Home() {
   const [ingredients, setIngredients] = useState("");
+  const [servings, setServings] = useState("4");
   const [recipe, setRecipe] = useState<Recipe | null>(null);
+  const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-const [servings, setServings] = useState("4");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("dinnercall_saved_recipes");
+    if (saved) {
+      setSavedRecipes(JSON.parse(saved));
+    }
+  }, []);
+
+  const saveRecipe = () => {
+    if (!recipe) return;
+
+    const updatedRecipes = [recipe, ...savedRecipes];
+    setSavedRecipes(updatedRecipes);
+    localStorage.setItem(
+      "dinnercall_saved_recipes",
+      JSON.stringify(updatedRecipes)
+    );
+  };
 
   const handleClick = async () => {
     if (!ingredients.trim()) return;
@@ -117,20 +136,20 @@ const [servings, setServings] = useState("4");
               }}
             />
 
-<select
-  value={servings}
-  onChange={(e) => setServings(e.target.value)}
-  style={{
-    padding: "14px",
-    borderRadius: "10px",
-    border: "1px solid #D9DED6",
-    fontSize: "16px",
-  }}
->
-  <option value="2">2 servings</option>
-  <option value="4">4 servings</option>
-  <option value="6">6 servings</option>
-</select>
+            <select
+              value={servings}
+              onChange={(e) => setServings(e.target.value)}
+              style={{
+                padding: "14px",
+                borderRadius: "10px",
+                border: "1px solid #D9DED6",
+                fontSize: "16px",
+              }}
+            >
+              <option value="2">2 servings</option>
+              <option value="4">4 servings</option>
+              <option value="6">6 servings</option>
+            </select>
 
             <button
               onClick={handleClick}
@@ -149,30 +168,37 @@ const [servings, setServings] = useState("4");
               {loading ? "Thinking..." : "Generate Recipe"}
             </button>
           </div>
-          </div>
 
-<div style={{ marginTop: "16px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
-  {[
-    "chicken, rice, broccoli",
-    "ground beef, tortillas, cheese",
-    "salmon, potatoes, asparagus",
-  ].map((example) => (
-    <button
-      key={example}
-      onClick={() => setIngredients(example)}
-      style={{
-        padding: "8px 12px",
-        borderRadius: "999px",
-        border: "1px solid #D9DED6",
-        background: "#F7F6F1",
-        color: "#52616B",
-        cursor: "pointer",
-      }}
-    >
-      {example}
-    </button>
-  ))}
-</div>
+          <div
+            style={{
+              marginTop: "16px",
+              display: "flex",
+              gap: "10px",
+              flexWrap: "wrap",
+            }}
+          >
+            {[
+              "chicken, rice, broccoli",
+              "ground beef, tortillas, cheese",
+              "salmon, potatoes, asparagus",
+            ].map((example) => (
+              <button
+                key={example}
+                onClick={() => setIngredients(example)}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "999px",
+                  border: "1px solid #D9DED6",
+                  background: "#F7F6F1",
+                  color: "#52616B",
+                  cursor: "pointer",
+                }}
+              >
+                {example}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {error && (
           <p style={{ color: "#B42318", fontWeight: "bold" }}>{error}</p>
@@ -185,6 +211,7 @@ const [servings, setServings] = useState("4");
               padding: "32px",
               borderRadius: "18px",
               boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+              marginBottom: "28px",
             }}
           >
             <p
@@ -223,18 +250,63 @@ const [servings, setServings] = useState("4");
             </h3>
 
             <ol
-  style={{
-    paddingLeft: "24px",
-    lineHeight: "1.8",
-    listStyleType: "decimal",
-  }}
->
+              style={{
+                paddingLeft: "24px",
+                lineHeight: "1.8",
+                listStyleType: "decimal",
+              }}
+            >
               {recipe.steps.map((step, index) => (
                 <li key={index} style={{ marginBottom: "12px" }}>
                   {step}
                 </li>
               ))}
             </ol>
+
+            <button
+              onClick={saveRecipe}
+              style={{
+                marginTop: "24px",
+                padding: "12px 18px",
+                borderRadius: "10px",
+                border: "none",
+                background: "#6B8F71",
+                color: "white",
+                fontSize: "15px",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+            >
+              Save Recipe
+            </button>
+          </section>
+        )}
+
+        {savedRecipes.length > 0 && (
+          <section
+            style={{
+              background: "#FFFFFF",
+              padding: "28px",
+              borderRadius: "18px",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+            }}
+          >
+            <h2 style={{ marginTop: 0 }}>Saved Recipes</h2>
+
+            {savedRecipes.map((savedRecipe, index) => (
+              <div
+                key={index}
+                style={{
+                  padding: "16px 0",
+                  borderTop: index === 0 ? "none" : "1px solid #E5E7EB",
+                }}
+              >
+                <strong>{savedRecipe.name}</strong>
+                <p style={{ color: "#52616B", marginBottom: 0 }}>
+                  {savedRecipe.why}
+                </p>
+              </div>
+            ))}
           </section>
         )}
       </section>
