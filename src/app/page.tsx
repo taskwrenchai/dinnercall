@@ -20,9 +20,7 @@ export default function Home() {
 
   useEffect(() => {
     const saved = localStorage.getItem("dinnercall_saved_recipes");
-    if (saved) {
-      setSavedRecipes(JSON.parse(saved));
-    }
+    if (saved) setSavedRecipes(JSON.parse(saved));
   }, []);
 
   const saveRecipe = () => {
@@ -30,7 +28,6 @@ export default function Home() {
 
     const updatedRecipes = [recipe, ...savedRecipes];
     setSavedRecipes(updatedRecipes);
-
     localStorage.setItem(
       "dinnercall_saved_recipes",
       JSON.stringify(updatedRecipes)
@@ -43,7 +40,6 @@ export default function Home() {
     );
 
     setSavedRecipes(updatedRecipes);
-
     localStorage.setItem(
       "dinnercall_saved_recipes",
       JSON.stringify(updatedRecipes)
@@ -62,17 +58,12 @@ Ingredients:
 ${recipe.ingredients.map((item) => `- ${item}`).join("\n")}
 
 Instructions:
-${recipe.steps
-  .map((step, index) => `${index + 1}. ${step}`)
-  .join("\n")}`;
+${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
 
     await navigator.clipboard.writeText(recipeText);
-
     setCopied(true);
 
-    setTimeout(() => {
-      setCopied(false);
-    }, 2000);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleClick = async () => {
@@ -114,30 +105,24 @@ ${recipe.steps
         padding: "24px 16px",
       }}
     >
-      <section
-        style={{
-          maxWidth: "900px",
-          margin: "0 auto",
-        }}
-      >
+      <section style={{ maxWidth: "900px", margin: "0 auto" }}>
         <div style={{ marginBottom: "32px" }}>
-         
-<img
-  src="/dinnercall-logo-v2.png"
-  alt="DinnerCall Logo"
-  style={{
-    width: "340px",
-    marginBottom: "48px",
-  }}
-/>
+          <img
+            src="/dinnercall-logo-v2.png"
+            alt="DinnerCall Logo"
+            style={{
+              width: "340px",
+              marginBottom: "48px",
+            }}
+          />
 
-<h1
-  style={{
-    fontSize: "clamp(36px, 7vw, 56px)",
-    lineHeight: "1.05",
-    margin: "0 0 16px",
-  }}
->
+          <h1
+            style={{
+              fontSize: "clamp(36px, 7vw, 56px)",
+              lineHeight: "1.05",
+              margin: "0 0 16px",
+            }}
+          >
             What’s for dinner?
           </h1>
 
@@ -174,22 +159,14 @@ ${recipe.steps
             Ingredients on hand
           </label>
 
-          <div
-            style={{
-              display: "flex",
-              gap: "12px",
-              flexWrap: "wrap",
-            }}
-          >
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
             <input
               type="text"
               placeholder="chicken, rice, broccoli..."
               value={ingredients}
               onChange={(e) => setIngredients(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && !loading) {
-                  handleClick();
-                }
+                if (e.key === "Enter" && !loading) handleClick();
               }}
               style={{
                 flex: "1",
@@ -269,15 +246,7 @@ ${recipe.steps
         </div>
 
         {error && (
-          <p
-            style={{
-              color: "#B42318",
-              fontWeight: "bold",
-              marginBottom: "24px",
-            }}
-          >
-            {error}
-          </p>
+          <p style={{ color: "#B42318", fontWeight: "bold" }}>{error}</p>
         )}
 
         {recipe && (
@@ -315,51 +284,22 @@ ${recipe.steps
               {recipe.name}
             </h2>
 
-            <h3 style={{ fontSize: "24px", marginBottom: "10px" }}>
-              Why this works
-            </h3>
-
-            <p
-              style={{
-                color: "#52616B",
-                lineHeight: "1.8",
-                fontSize: "17px",
-              }}
-            >
+            <h3>Why this works</h3>
+            <p style={{ color: "#52616B", lineHeight: "1.8", fontSize: "17px" }}>
               {recipe.why}
             </p>
 
-            <h3
-              style={{
-                marginTop: "36px",
-                marginBottom: "12px",
-                fontSize: "24px",
-              }}
-            >
+            <h3 style={{ marginTop: "36px", fontSize: "24px" }}>
               Ingredients
             </h3>
 
-            <ul
-              style={{
-                paddingLeft: "24px",
-                lineHeight: "1.9",
-                fontSize: "17px",
-              }}
-            >
+            <ul style={{ paddingLeft: "24px", lineHeight: "1.9", fontSize: "17px" }}>
               {recipe.ingredients.map((item, index) => (
-                <li key={index} style={{ marginBottom: "6px" }}>
-                  {item}
-                </li>
+                <li key={index}>{item}</li>
               ))}
             </ul>
 
-            <h3
-              style={{
-                marginTop: "40px",
-                marginBottom: "12px",
-                fontSize: "24px",
-              }}
-            >
+            <h3 style={{ marginTop: "40px", fontSize: "24px" }}>
               Instructions
             </h3>
 
@@ -417,6 +357,22 @@ ${recipe.steps
               >
                 {copied ? "Copied!" : "Copy Recipe"}
               </button>
+
+              <button
+                onClick={() => setRecipe(null)}
+                style={{
+                  padding: "14px 18px",
+                  borderRadius: "12px",
+                  border: "1px solid #D9DED6",
+                  background: "#FFFFFF",
+                  color: "#52616B",
+                  fontSize: "15px",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                }}
+              >
+                Clear Recipe
+              </button>
             </div>
           </section>
         )}
@@ -431,22 +387,11 @@ ${recipe.steps
               border: "1px solid #ECEEE9",
             }}
           >
-            <h2
-              style={{
-                marginTop: 0,
-                marginBottom: "8px",
-                fontSize: "32px",
-              }}
-            >
+            <h2 style={{ marginTop: 0, marginBottom: "8px", fontSize: "32px" }}>
               Saved Recipes
             </h2>
 
-            <p
-              style={{
-                color: "#52616B",
-                marginBottom: "24px",
-              }}
-            >
+            <p style={{ color: "#52616B", marginBottom: "24px" }}>
               Your favorite DinnerCalls.
             </p>
 
@@ -458,8 +403,7 @@ ${recipe.steps
                   gap: "12px",
                   alignItems: "flex-start",
                   padding: "18px 0",
-                  borderTop:
-                    index === 0 ? "none" : "1px solid #E5E7EB",
+                  borderTop: index === 0 ? "none" : "1px solid #E5E7EB",
                 }}
               >
                 <button
@@ -473,12 +417,7 @@ ${recipe.steps
                     padding: 0,
                   }}
                 >
-                  <strong
-                    style={{
-                      fontSize: "18px",
-                      color: "#1F2933",
-                    }}
-                  >
+                  <strong style={{ fontSize: "18px", color: "#1F2933" }}>
                     {savedRecipe.name}
                   </strong>
 
@@ -493,25 +432,6 @@ ${recipe.steps
                     {savedRecipe.why}
                   </p>
                 </button>
-
-{recipe && (
-  <button
-    onClick={() => setRecipe(null)}
-    style={{
-      marginTop: "24px",
-      padding: "12px 18px",
-      borderRadius: "10px",
-      border: "1px solid #D9DED6",
-      background: "#FFFFFF",
-      color: "#52616B",
-      fontSize: "15px",
-      fontWeight: "600",
-      cursor: "pointer",
-    }}
-  >
-    Clear Recipe
-  </button>
-)}
 
                 <button
                   onClick={() => deleteRecipe(index)}
