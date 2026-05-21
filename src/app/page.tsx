@@ -18,6 +18,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [mealPreference, setMealPreference] = useState("No Preference");
+  const [avoidIngredients, setAvoidIngredients] = useState("");
 
   useEffect(() => {
     const saved = localStorage.getItem("dinnercall_saved_recipes");
@@ -83,6 +84,7 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
   ingredients,
   servings,
   mealPreference,
+  avoidIngredients,
 }),
       });
 
@@ -182,6 +184,32 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
                 fontSize: "16px",
               }}
             />
+
+            <div style={{ marginTop: "16px" }}>
+  <label
+    style={{
+      display: "block",
+      marginBottom: "8px",
+      fontWeight: "600",
+    }}
+  >
+    Dislikes / Allergies
+  </label>
+
+  <input
+    type="text"
+    placeholder="mushrooms, olives, peanuts..."
+    value={avoidIngredients}
+    onChange={(e) => setAvoidIngredients(e.target.value)}
+    style={{
+      width: "100%",
+      padding: "14px",
+      borderRadius: "10px",
+      border: "1px solid #D9DED6",
+      fontSize: "16px",
+    }}
+  />
+</div>
 
             <select
               value={servings}
