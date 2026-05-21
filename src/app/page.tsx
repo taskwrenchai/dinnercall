@@ -11,14 +11,14 @@ type Recipe = {
 
 export default function Home() {
   const [ingredients, setIngredients] = useState("");
+  const [avoidIngredients, setAvoidIngredients] = useState("");
   const [servings, setServings] = useState("4");
+  const [mealPreference, setMealPreference] = useState("No Preference");
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [mealPreference, setMealPreference] = useState("No Preference");
-  const [avoidIngredients, setAvoidIngredients] = useState("");
 
   useEffect(() => {
     const saved = localStorage.getItem("dinnercall_saved_recipes");
@@ -27,25 +27,15 @@ export default function Home() {
 
   const saveRecipe = () => {
     if (!recipe) return;
-
     const updatedRecipes = [recipe, ...savedRecipes];
     setSavedRecipes(updatedRecipes);
-    localStorage.setItem(
-      "dinnercall_saved_recipes",
-      JSON.stringify(updatedRecipes)
-    );
+    localStorage.setItem("dinnercall_saved_recipes", JSON.stringify(updatedRecipes));
   };
 
   const deleteRecipe = (index: number) => {
-    const updatedRecipes = savedRecipes.filter(
-      (_, savedIndex) => savedIndex !== index
-    );
-
+    const updatedRecipes = savedRecipes.filter((_, savedIndex) => savedIndex !== index);
     setSavedRecipes(updatedRecipes);
-    localStorage.setItem(
-      "dinnercall_saved_recipes",
-      JSON.stringify(updatedRecipes)
-    );
+    localStorage.setItem("dinnercall_saved_recipes", JSON.stringify(updatedRecipes));
   };
 
   const copyRecipe = async () => {
@@ -64,7 +54,6 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
 
     await navigator.clipboard.writeText(recipeText);
     setCopied(true);
-
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -81,11 +70,11 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-  ingredients,
-  servings,
-  mealPreference,
-  avoidIngredients,
-}),
+          ingredients,
+          servings,
+          mealPreference,
+          avoidIngredients,
+        }),
       });
 
       const data = await res.json();
@@ -117,10 +106,7 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
           <img
             src="/dinnercall-logo-v2.png"
             alt="DinnerCall Logo"
-            style={{
-              width: "340px",
-              marginBottom: "48px",
-            }}
+            style={{ width: "340px", marginBottom: "48px" }}
           />
 
           <h1
@@ -148,69 +134,57 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
         <div
           style={{
             background: "#FFFFFF",
-            padding: "24px",
+            padding: "28px",
             borderRadius: "22px",
             boxShadow: "0 10px 35px rgba(0,0,0,0.06)",
             marginBottom: "28px",
             border: "1px solid #ECEEE9",
           }}
         >
-          <label
-            style={{
-              display: "block",
-              fontWeight: "bold",
-              marginBottom: "12px",
-              fontSize: "15px",
-            }}
-          >
+          <label style={{ display: "block", fontWeight: "bold", marginBottom: "12px" }}>
             Ingredients on hand
           </label>
 
+          <input
+            type="text"
+            placeholder="chicken, rice, broccoli..."
+            value={ingredients}
+            onChange={(e) => setIngredients(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !loading) handleClick();
+            }}
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              padding: "16px",
+              borderRadius: "12px",
+              border: "1px solid #D9DED6",
+              fontSize: "16px",
+              marginBottom: "18px",
+            }}
+          />
+
+          <label style={{ display: "block", fontWeight: "bold", marginBottom: "12px" }}>
+            Dislikes / Allergies
+          </label>
+
+          <input
+            type="text"
+            placeholder="mushrooms, olives, peanuts..."
+            value={avoidIngredients}
+            onChange={(e) => setAvoidIngredients(e.target.value)}
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              padding: "16px",
+              borderRadius: "12px",
+              border: "1px solid #D9DED6",
+              fontSize: "16px",
+              marginBottom: "18px",
+            }}
+          />
+
           <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-            <input
-              type="text"
-              placeholder="chicken, rice, broccoli..."
-              value={ingredients}
-              onChange={(e) => setIngredients(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !loading) handleClick();
-              }}
-              style={{
-                flex: "1",
-                minWidth: "240px",
-                padding: "16px",
-                borderRadius: "12px",
-                border: "1px solid #D9DED6",
-                fontSize: "16px",
-              }}
-            />
-
-            <div style={{ marginTop: "16px" }}>
-  <label
-    style={{
-      display: "block",
-      marginBottom: "8px",
-      fontWeight: "600",
-    }}
-  >
-    Dislikes / Allergies
-  </label>
-
-  <input
-    type="text"
-    placeholder="mushrooms, olives, peanuts..."
-    value={avoidIngredients}
-    onChange={(e) => setAvoidIngredients(e.target.value)}
-    style={{
-      width: "100%",
-      padding: "14px",
-      borderRadius: "10px",
-      border: "1px solid #D9DED6",
-      fontSize: "16px",
-    }}
-  />
-</div>
-
             <select
               value={servings}
               onChange={(e) => setServings(e.target.value)}
@@ -227,28 +201,28 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
               <option value="6">6 servings</option>
             </select>
 
-<select
-  value={mealPreference}
-  onChange={(e) => setMealPreference(e.target.value)}
-  style={{
-    padding: "16px",
-    borderRadius: "12px",
-    border: "1px solid #D9DED6",
-    fontSize: "16px",
-    background: "#FFFFFF",
-  }}
->
-  <option value="No Preference">No Preference</option>
-  <option value="Comfort Food">Comfort Food</option>
-  <option value="Clean Eating">Clean Eating</option>
-  <option value="High Protein">High Protein</option>
-  <option value="Kid Friendly">Kid Friendly</option>
-  <option value="Carnivore">Carnivore</option>
-  <option value="Vegetarian">Vegetarian</option>
-  <option value="Vegan">Vegan</option>
-</select>
+            <select
+              value={mealPreference}
+              onChange={(e) => setMealPreference(e.target.value)}
+              style={{
+                padding: "16px",
+                borderRadius: "12px",
+                border: "1px solid #D9DED6",
+                fontSize: "16px",
+                background: "#FFFFFF",
+              }}
+            >
+              <option value="No Preference">No Preference</option>
+              <option value="Comfort Food">Comfort Food</option>
+              <option value="Clean Eating">Clean Eating</option>
+              <option value="High Protein">High Protein</option>
+              <option value="Kid Friendly">Kid Friendly</option>
+              <option value="Carnivore">Carnivore</option>
+              <option value="Vegetarian">Vegetarian</option>
+              <option value="Vegan">Vegan</option>
+            </select>
 
-<button
+            <button
               onClick={handleClick}
               disabled={loading}
               style={{
@@ -267,14 +241,7 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
             </button>
           </div>
 
-          <div
-            style={{
-              marginTop: "18px",
-              display: "flex",
-              gap: "10px",
-              flexWrap: "wrap",
-            }}
-          >
+          <div style={{ marginTop: "18px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
             {[
               "chicken, rice, broccoli",
               "ground beef, tortillas, cheese",
@@ -299,9 +266,7 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
           </div>
         </div>
 
-        {error && (
-          <p style={{ color: "#B42318", fontWeight: "bold" }}>{error}</p>
-        )}
+        {error && <p style={{ color: "#B42318", fontWeight: "bold" }}>{error}</p>}
 
         {recipe && (
           <section
@@ -343,9 +308,7 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
               {recipe.why}
             </p>
 
-            <h3 style={{ marginTop: "36px", fontSize: "24px" }}>
-              Ingredients
-            </h3>
+            <h3 style={{ marginTop: "36px", fontSize: "24px" }}>Ingredients</h3>
 
             <ul style={{ paddingLeft: "24px", lineHeight: "1.9", fontSize: "17px" }}>
               {recipe.ingredients.map((item, index) => (
@@ -353,9 +316,7 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
               ))}
             </ul>
 
-            <h3 style={{ marginTop: "40px", fontSize: "24px" }}>
-              Instructions
-            </h3>
+            <h3 style={{ marginTop: "40px", fontSize: "24px" }}>Instructions</h3>
 
             <ol
               style={{
@@ -372,59 +333,16 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
               ))}
             </ol>
 
-            <div
-              style={{
-                display: "flex",
-                gap: "12px",
-                flexWrap: "wrap",
-                marginTop: "28px",
-              }}
-            >
-              <button
-                onClick={saveRecipe}
-                style={{
-                  padding: "14px 18px",
-                  borderRadius: "12px",
-                  border: "none",
-                  background: "#6B8F71",
-                  color: "white",
-                  fontSize: "15px",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                }}
-              >
+            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginTop: "28px" }}>
+              <button onClick={saveRecipe} style={greenButtonStyle}>
                 Save Recipe
               </button>
 
-              <button
-                onClick={copyRecipe}
-                style={{
-                  padding: "14px 18px",
-                  borderRadius: "12px",
-                  border: "1px solid #D9DED6",
-                  background: "#FFFFFF",
-                  color: "#1F2933",
-                  fontSize: "15px",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                }}
-              >
+              <button onClick={copyRecipe} style={whiteButtonStyle}>
                 {copied ? "Copied!" : "Copy Recipe"}
               </button>
 
-              <button
-                onClick={() => setRecipe(null)}
-                style={{
-                  padding: "14px 18px",
-                  borderRadius: "12px",
-                  border: "1px solid #D9DED6",
-                  background: "#FFFFFF",
-                  color: "#52616B",
-                  fontSize: "15px",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                }}
-              >
+              <button onClick={() => setRecipe(null)} style={whiteButtonStyle}>
                 Clear Recipe
               </button>
             </div>
@@ -487,18 +405,7 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
                   </p>
                 </button>
 
-                <button
-                  onClick={() => deleteRecipe(index)}
-                  style={{
-                    padding: "8px 12px",
-                    borderRadius: "10px",
-                    border: "1px solid #E5E7EB",
-                    background: "#FFFFFF",
-                    color: "#B42318",
-                    cursor: "pointer",
-                    fontWeight: "bold",
-                  }}
-                >
+                <button onClick={() => deleteRecipe(index)} style={deleteButtonStyle}>
                   Delete
                 </button>
               </div>
@@ -509,3 +416,35 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
     </main>
   );
 }
+
+const greenButtonStyle = {
+  padding: "14px 18px",
+  borderRadius: "12px",
+  border: "none",
+  background: "#6B8F71",
+  color: "white",
+  fontSize: "15px",
+  fontWeight: "bold",
+  cursor: "pointer",
+};
+
+const whiteButtonStyle = {
+  padding: "14px 18px",
+  borderRadius: "12px",
+  border: "1px solid #D9DED6",
+  background: "#FFFFFF",
+  color: "#1F2933",
+  fontSize: "15px",
+  fontWeight: "bold",
+  cursor: "pointer",
+};
+
+const deleteButtonStyle = {
+  padding: "8px 12px",
+  borderRadius: "10px",
+  border: "1px solid #E5E7EB",
+  background: "#FFFFFF",
+  color: "#B42318",
+  cursor: "pointer",
+  fontWeight: "bold",
+};
