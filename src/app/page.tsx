@@ -17,6 +17,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [mealPreference, setMealPreference] = useState("No Preference");
 
   useEffect(() => {
     const saved = localStorage.getItem("dinnercall_saved_recipes");
@@ -78,7 +79,11 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
       const res = await fetch("/api/recipe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ingredients, servings }),
+        body: JSON.stringify({
+  ingredients,
+  servings,
+  mealPreference,
+}),
       });
 
       const data = await res.json();
@@ -194,7 +199,28 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
               <option value="6">6 servings</option>
             </select>
 
-            <button
+<select
+  value={mealPreference}
+  onChange={(e) => setMealPreference(e.target.value)}
+  style={{
+    padding: "16px",
+    borderRadius: "12px",
+    border: "1px solid #D9DED6",
+    fontSize: "16px",
+    background: "#FFFFFF",
+  }}
+>
+  <option value="No Preference">No Preference</option>
+  <option value="Comfort Food">Comfort Food</option>
+  <option value="Clean Eating">Clean Eating</option>
+  <option value="High Protein">High Protein</option>
+  <option value="Kid Friendly">Kid Friendly</option>
+  <option value="Carnivore">Carnivore</option>
+  <option value="Vegetarian">Vegetarian</option>
+  <option value="Vegan">Vegan</option>
+</select>
+
+<button
               onClick={handleClick}
               disabled={loading}
               style={{
