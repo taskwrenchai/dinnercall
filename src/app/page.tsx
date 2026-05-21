@@ -237,7 +237,7 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
                 minWidth: "170px",
               }}
             >
-              {loading ? "Thinking..." : "Generate Recipe"}
+              {loading ? "Thinking..." : "Decide Dinner"}
             </button>
           </div>
 
