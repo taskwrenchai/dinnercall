@@ -24,6 +24,12 @@ Create one simple but genuinely GOOD dinner recipe using these ingredients: ${in
 
 Make the recipe for ${servings || "4"} servings.
 
+${kidFriendly ? "The recipe should be kid-friendly and appeal to children." : ""}
+
+${maxTime !== "No Preference"
+  ? `The recipe should take ${maxTime} from start to finish.`
+  : ""}
+
 Meal preference: ${mealPreference || "No Preference"}.
 
 Avoid these ingredients: ${avoidIngredients || "None"}.
@@ -31,6 +37,7 @@ Avoid these ingredients: ${avoidIngredients || "None"}.
 Maximum cook time: ${maxTime || "No Preference"}.
 
 Kid friendly: ${kidFriendly ? "Yes" : "No"}.
+
 
 The recipe should feel like advice from a smart home cook, not a generic AI.
 
