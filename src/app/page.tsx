@@ -20,6 +20,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [maxTime, setMaxTime] = useState("No Preference");
+  const [kidFriendly, setKidFriendly] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("dinnercall_saved_recipes");
@@ -76,6 +77,7 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
           mealPreference,
           avoidIngredients,
           maxTime,
+          kidFriendly,
 
         }),
       });
@@ -241,7 +243,34 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
   <option value="30 minutes or less">30 min or less</option>
   <option value="45 minutes or less">45 min or less</option>
   <option value="60 minutes or less">60 min or less</option>
+
 </select>
+
+<label
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "16px",
+    borderRadius: "12px",
+    border: "1px solid #D9DED6",
+    background: "#FFFFFF",
+    fontSize: "16px",
+    cursor: "pointer",
+  }}
+>
+  <input
+    type="checkbox"
+    checked={kidFriendly}
+    onChange={(e) => setKidFriendly(e.target.checked)}
+    style={{
+      width: "18px",
+      height: "18px",
+    }}
+  />
+  Kid Friendly
+</label>
+
 
             <button
               onClick={handleClick}

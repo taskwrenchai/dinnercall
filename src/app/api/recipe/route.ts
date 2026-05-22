@@ -7,7 +7,7 @@ const client = new OpenAI({
 
 export async function POST(req: Request) {
   try {
-const { ingredients, servings, mealPreference, avoidIngredients, maxTime
+const { ingredients, servings, mealPreference, avoidIngredients, maxTime, kidFriendly
  } = await req.json();
 
     if (!ingredients || !ingredients.trim()) {
@@ -29,6 +29,8 @@ Meal preference: ${mealPreference || "No Preference"}.
 Avoid these ingredients: ${avoidIngredients || "None"}.
 
 Maximum cook time: ${maxTime || "No Preference"}.
+
+Kid friendly: ${kidFriendly ? "Yes" : "No"}.
 
 The recipe should feel like advice from a smart home cook, not a generic AI.
 
