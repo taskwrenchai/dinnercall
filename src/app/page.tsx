@@ -19,6 +19,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [maxTime, setMaxTime] = useState("No Preference");
 
   useEffect(() => {
     const saved = localStorage.getItem("dinnercall_saved_recipes");
@@ -74,6 +75,8 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
           servings,
           mealPreference,
           avoidIngredients,
+          maxTime,
+
         }),
       });
 
@@ -153,6 +156,7 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
             onKeyDown={(e) => {
               if (e.key === "Enter" && !loading) handleClick();
             }}
+
             style={{
               width: "100%",
               boxSizing: "border-box",
@@ -216,11 +220,28 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
               <option value="Comfort Food">Comfort Food</option>
               <option value="Clean Eating">Clean Eating</option>
               <option value="High Protein">High Protein</option>
-              <option value="Kid Friendly">Kid Friendly</option>
               <option value="Carnivore">Carnivore</option>
               <option value="Vegetarian">Vegetarian</option>
               <option value="Vegan">Vegan</option>
             </select>
+
+<select
+  value={maxTime}
+  onChange={(e) => setMaxTime(e.target.value)}
+  style={{
+    padding: "16px",
+    borderRadius: "12px",
+    border: "1px solid #D9DED6",
+    fontSize: "16px",
+    background: "#FFFFFF",
+  }}
+>
+  <option value="No Preference">Any Time</option>
+  <option value="15 minutes or less">15 min or less</option>
+  <option value="30 minutes or less">30 min or less</option>
+  <option value="45 minutes or less">45 min or less</option>
+  <option value="60 minutes or less">60 min or less</option>
+</select>
 
             <button
               onClick={handleClick}
