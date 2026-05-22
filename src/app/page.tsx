@@ -310,6 +310,10 @@ const downloadRecipe = () => {
                 Save Recipe
               </button>
 
+              <button onClick={downloadRecipe} style={whiteButtonStyle}>
+  Download Recipe
+</button>
+
               <button onClick={copyRecipe} style={whiteButtonStyle}>
                 {copied ? "Copied!" : "Copy Recipe"}
               </button>
