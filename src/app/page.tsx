@@ -14,13 +14,13 @@ export default function Home() {
   const [avoidIngredients, setAvoidIngredients] = useState("");
   const [servings, setServings] = useState("4");
   const [mealPreference, setMealPreference] = useState("No Preference");
+  const [maxTime, setMaxTime] = useState("No Preference");
+  const [kidFriendly, setKidFriendly] = useState(false);
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [maxTime, setMaxTime] = useState("No Preference");
-  const [kidFriendly, setKidFriendly] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("dinnercall_saved_recipes");
@@ -78,7 +78,6 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
           avoidIngredients,
           maxTime,
           kidFriendly,
-
         }),
       });
 
@@ -96,6 +95,13 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
     }
   };
 
+  const recipeBadges = [
+    `${servings} servings`,
+    mealPreference !== "No Preference" ? mealPreference : null,
+    maxTime !== "No Preference" ? maxTime : null,
+    kidFriendly ? "Kid Friendly" : null,
+  ].filter(Boolean);
+
   return (
     <main
       style={{
@@ -111,7 +117,7 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
           <img
             src="/dinnercall-logo-v2.png"
             alt="DinnerCall Logo"
-            style={{ width: "340px", marginBottom: "48px" }}
+            style={{ width: "340px", marginBottom: "48px", maxWidth: "100%" }}
           />
 
           <h1
@@ -132,23 +138,12 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
               lineHeight: "1.6",
             }}
           >
-            Tell us what you have, and we’ll turn it into a simple dinner idea.
+            Tell us what you have, and we’ll decide dinner.
           </p>
         </div>
 
-        <div
-          style={{
-            background: "#FFFFFF",
-            padding: "28px",
-            borderRadius: "22px",
-            boxShadow: "0 10px 35px rgba(0,0,0,0.06)",
-            marginBottom: "28px",
-            border: "1px solid #ECEEE9",
-          }}
-        >
-          <label style={{ display: "block", fontWeight: "bold", marginBottom: "12px" }}>
-            Ingredients on hand
-          </label>
+        <div style={cardStyle}>
+          <label style={labelStyle}>Ingredients on hand</label>
 
           <input
             type="text"
@@ -158,50 +153,21 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
             onKeyDown={(e) => {
               if (e.key === "Enter" && !loading) handleClick();
             }}
-
-            style={{
-              width: "100%",
-              boxSizing: "border-box",
-              padding: "16px",
-              borderRadius: "12px",
-              border: "1px solid #D9DED6",
-              fontSize: "16px",
-              marginBottom: "18px",
-            }}
+            style={inputStyle}
           />
 
-          <label style={{ display: "block", fontWeight: "bold", marginBottom: "12px" }}>
-            Dislikes / Allergies
-          </label>
+          <label style={labelStyle}>Dislikes / Allergies</label>
 
           <input
             type="text"
             placeholder="mushrooms, olives, peanuts..."
             value={avoidIngredients}
             onChange={(e) => setAvoidIngredients(e.target.value)}
-            style={{
-              width: "100%",
-              boxSizing: "border-box",
-              padding: "16px",
-              borderRadius: "12px",
-              border: "1px solid #D9DED6",
-              fontSize: "16px",
-              marginBottom: "18px",
-            }}
+            style={inputStyle}
           />
 
-          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-            <select
-              value={servings}
-              onChange={(e) => setServings(e.target.value)}
-              style={{
-                padding: "16px",
-                borderRadius: "12px",
-                border: "1px solid #D9DED6",
-                fontSize: "16px",
-                background: "#FFFFFF",
-              }}
-            >
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginTop: "18px" }}>
+            <select value={servings} onChange={(e) => setServings(e.target.value)} style={selectStyle}>
               <option value="2">2 servings</option>
               <option value="4">4 servings</option>
               <option value="6">6 servings</option>
@@ -210,13 +176,7 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
             <select
               value={mealPreference}
               onChange={(e) => setMealPreference(e.target.value)}
-              style={{
-                padding: "16px",
-                borderRadius: "12px",
-                border: "1px solid #D9DED6",
-                fontSize: "16px",
-                background: "#FFFFFF",
-              }}
+              style={selectStyle}
             >
               <option value="No Preference">No Preference</option>
               <option value="Comfort Food">Comfort Food</option>
@@ -227,67 +187,26 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
               <option value="Vegan">Vegan</option>
             </select>
 
-<select
-  value={maxTime}
-  onChange={(e) => setMaxTime(e.target.value)}
-  style={{
-    padding: "16px",
-    borderRadius: "12px",
-    border: "1px solid #D9DED6",
-    fontSize: "16px",
-    background: "#FFFFFF",
-  }}
->
-  <option value="No Preference">Any Time</option>
-  <option value="15 minutes or less">15 min or less</option>
-  <option value="30 minutes or less">30 min or less</option>
-  <option value="45 minutes or less">45 min or less</option>
-  <option value="60 minutes or less">60 min or less</option>
+            <select value={maxTime} onChange={(e) => setMaxTime(e.target.value)} style={selectStyle}>
+              <option value="No Preference">Any Time</option>
+              <option value="15 minutes or less">15 min or less</option>
+              <option value="30 minutes or less">30 min or less</option>
+              <option value="45 minutes or less">45 min or less</option>
+              <option value="60 minutes or less">60 min or less</option>
+            </select>
 
-</select>
+            <label style={toggleStyle}>
+              <input
+                type="checkbox"
+                checked={kidFriendly}
+                onChange={(e) => setKidFriendly(e.target.checked)}
+                style={{ width: "18px", height: "18px" }}
+              />
+              Kid Friendly
+            </label>
 
-<label
-  style={{
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    padding: "16px",
-    borderRadius: "12px",
-    border: "1px solid #D9DED6",
-    background: "#FFFFFF",
-    fontSize: "16px",
-    cursor: "pointer",
-  }}
->
-  <input
-    type="checkbox"
-    checked={kidFriendly}
-    onChange={(e) => setKidFriendly(e.target.checked)}
-    style={{
-      width: "18px",
-      height: "18px",
-    }}
-  />
-  Kid Friendly
-</label>
-
-
-            <button
-              onClick={handleClick}
-              disabled={loading}
-              style={{
-                padding: "16px 22px",
-                borderRadius: "12px",
-                border: "none",
-                background: "#6B8F71",
-                color: "white",
-                fontSize: "16px",
-                fontWeight: "bold",
-                cursor: loading ? "not-allowed" : "pointer",
-                minWidth: "170px",
-              }}
-            >
-              {loading ? "Thinking..." : "Decide Dinner"}
+            <button onClick={handleClick} disabled={loading} style={mainButtonStyle}>
+              {loading ? "Deciding..." : "Decide Dinner"}
             </button>
           </div>
 
@@ -297,19 +216,7 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
               "ground beef, tortillas, cheese",
               "salmon, potatoes, asparagus",
             ].map((example) => (
-              <button
-                key={example}
-                onClick={() => setIngredients(example)}
-                style={{
-                  padding: "10px 14px",
-                  borderRadius: "999px",
-                  border: "1px solid #D9DED6",
-                  background: "#F7F6F1",
-                  color: "#52616B",
-                  cursor: "pointer",
-                  fontSize: "14px",
-                }}
-              >
+              <button key={example} onClick={() => setIngredients(example)} style={chipStyle}>
                 {example}
               </button>
             ))}
@@ -319,71 +226,68 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
         {error && <p style={{ color: "#B42318", fontWeight: "bold" }}>{error}</p>}
 
         {recipe && (
-          <section
-            style={{
-              background: "#FFFFFF",
-              padding: "32px",
-              borderRadius: "22px",
-              boxShadow: "0 10px 35px rgba(0,0,0,0.06)",
-              marginBottom: "28px",
-              border: "1px solid #ECEEE9",
-            }}
-          >
-            <p
-              style={{
-                color: "#6B8F71",
-                fontWeight: "bold",
-                marginBottom: "10px",
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                fontSize: "13px",
-              }}
-            >
-              Tonight’s DinnerCall
-            </p>
+          <section style={recipeCardStyle}>
+            <p style={eyebrowStyle}>Tonight’s DinnerCall</p>
 
             <h2
               style={{
-                fontSize: "clamp(28px, 5vw, 42px)",
+                fontSize: "clamp(30px, 5vw, 46px)",
                 marginTop: 0,
-                marginBottom: "20px",
-                lineHeight: "1.1",
+                marginBottom: "16px",
+                lineHeight: "1.08",
               }}
             >
               {recipe.name}
             </h2>
 
-            <h3>Why this works</h3>
-            <p style={{ color: "#52616B", lineHeight: "1.8", fontSize: "17px" }}>
-              {recipe.why}
-            </p>
+            {recipeBadges.length > 0 && (
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "28px" }}>
+                {recipeBadges.map((badge) => (
+                  <span key={badge} style={badgeStyle}>
+                    {badge}
+                  </span>
+                ))}
+              </div>
+            )}
 
-            <h3 style={{ marginTop: "36px", fontSize: "24px" }}>Ingredients</h3>
+            <div
+              style={{
+                background: "#F7F6F1",
+                border: "1px solid #ECEEE9",
+                borderRadius: "16px",
+                padding: "20px",
+                marginBottom: "32px",
+              }}
+            >
+              <h3 style={{ marginTop: 0, marginBottom: "10px", fontSize: "22px" }}>
+                Why this works
+              </h3>
+              <p style={{ color: "#52616B", lineHeight: "1.8", fontSize: "17px", marginBottom: 0 }}>
+                {recipe.why}
+              </p>
+            </div>
 
-            <ul style={{ paddingLeft: "24px", lineHeight: "1.9", fontSize: "17px" }}>
+            <h3 style={sectionTitleStyle}>Ingredients</h3>
+
+            <ul style={listStyle}>
               {recipe.ingredients.map((item, index) => (
-                <li key={index}>{item}</li>
+                <li key={index} style={{ marginBottom: "8px" }}>
+                  {item}
+                </li>
               ))}
             </ul>
 
-            <h3 style={{ marginTop: "40px", fontSize: "24px" }}>Instructions</h3>
+            <h3 style={sectionTitleStyle}>Instructions</h3>
 
-            <ol
-              style={{
-                paddingLeft: "24px",
-                lineHeight: "1.9",
-                listStyleType: "decimal",
-                fontSize: "17px",
-              }}
-            >
+            <ol style={listStyle}>
               {recipe.steps.map((step, index) => (
-                <li key={index} style={{ marginBottom: "16px" }}>
+                <li key={index} style={{ marginBottom: "18px", paddingLeft: "4px" }}>
                   {step}
                 </li>
               ))}
             </ol>
 
-            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginTop: "28px" }}>
+            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginTop: "30px" }}>
               <button onClick={saveRecipe} style={greenButtonStyle}>
                 Save Recipe
               </button>
@@ -400,15 +304,7 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
         )}
 
         {savedRecipes.length > 0 && (
-          <section
-            style={{
-              background: "#FFFFFF",
-              padding: "28px",
-              borderRadius: "22px",
-              boxShadow: "0 10px 35px rgba(0,0,0,0.06)",
-              border: "1px solid #ECEEE9",
-            }}
-          >
+          <section style={cardStyle}>
             <h2 style={{ marginTop: 0, marginBottom: "8px", fontSize: "32px" }}>
               Saved Recipes
             </h2>
@@ -443,14 +339,7 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
                     {savedRecipe.name}
                   </strong>
 
-                  <p
-                    style={{
-                      color: "#52616B",
-                      marginBottom: 0,
-                      marginTop: "6px",
-                      lineHeight: "1.6",
-                    }}
-                  >
+                  <p style={{ color: "#52616B", marginBottom: 0, marginTop: "6px", lineHeight: "1.6" }}>
                     {savedRecipe.why}
                   </p>
                 </button>
@@ -466,6 +355,110 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
     </main>
   );
 }
+
+const cardStyle = {
+  background: "#FFFFFF",
+  padding: "28px",
+  borderRadius: "22px",
+  boxShadow: "0 10px 35px rgba(0,0,0,0.06)",
+  marginBottom: "28px",
+  border: "1px solid #ECEEE9",
+};
+
+const recipeCardStyle = {
+  ...cardStyle,
+  padding: "34px",
+};
+
+const labelStyle = {
+  display: "block",
+  fontWeight: "bold",
+  marginBottom: "12px",
+  fontSize: "16px",
+};
+
+const inputStyle = {
+  width: "100%",
+  boxSizing: "border-box" as const,
+  padding: "16px",
+  borderRadius: "12px",
+  border: "1px solid #D9DED6",
+  fontSize: "16px",
+  marginBottom: "18px",
+};
+
+const selectStyle = {
+  padding: "16px",
+  borderRadius: "12px",
+  border: "1px solid #D9DED6",
+  fontSize: "16px",
+  background: "#FFFFFF",
+};
+
+const toggleStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  padding: "16px",
+  borderRadius: "12px",
+  border: "1px solid #D9DED6",
+  background: "#FFFFFF",
+  fontSize: "16px",
+  cursor: "pointer",
+};
+
+const mainButtonStyle = {
+  padding: "16px 24px",
+  borderRadius: "12px",
+  border: "none",
+  background: "#6B8F71",
+  color: "white",
+  fontSize: "16px",
+  fontWeight: "bold",
+  cursor: "pointer",
+  minWidth: "190px",
+};
+
+const chipStyle = {
+  padding: "10px 14px",
+  borderRadius: "999px",
+  border: "1px solid #D9DED6",
+  background: "#F7F6F1",
+  color: "#52616B",
+  cursor: "pointer",
+  fontSize: "14px",
+};
+
+const eyebrowStyle = {
+  color: "#6B8F71",
+  fontWeight: "bold",
+  marginBottom: "10px",
+  textTransform: "uppercase" as const,
+  letterSpacing: "0.06em",
+  fontSize: "13px",
+};
+
+const badgeStyle = {
+  padding: "8px 12px",
+  borderRadius: "999px",
+  background: "#F7F6F1",
+  border: "1px solid #D9DED6",
+  color: "#52616B",
+  fontSize: "14px",
+  fontWeight: "600",
+};
+
+const sectionTitleStyle = {
+  marginTop: "34px",
+  marginBottom: "14px",
+  fontSize: "24px",
+};
+
+const listStyle = {
+  paddingLeft: "24px",
+  lineHeight: "1.9",
+  fontSize: "17px",
+};
 
 const greenButtonStyle = {
   padding: "14px 18px",
