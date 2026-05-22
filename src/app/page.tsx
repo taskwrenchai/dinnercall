@@ -297,7 +297,7 @@ const downloadRecipe = () => {
 
             <h3 style={sectionTitleStyle}>Instructions</h3>
 
-            <ol style={listStyle}>
+            <ol style={{ ...listStyle, listStyleType: "decimal" }}>
               {recipe.steps.map((step, index) => (
                 <li key={index} style={{ marginBottom: "18px", paddingLeft: "4px" }}>
                   {step}
