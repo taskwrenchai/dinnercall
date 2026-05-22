@@ -27,7 +27,7 @@ Make the recipe for ${servings || "4"} servings.
 ${kidFriendly ? "The recipe should be kid-friendly and appeal to children." : ""}
 
 ${maxTime !== "No Preference"
-  ? `The recipe should take ${maxTime} from start to finish.`
+  ? `The recipe must realistically take ${maxTime} from start to finish, including prep time. Do not exceed this limit.`
   : ""}
 
 Meal preference: ${mealPreference || "No Preference"}.

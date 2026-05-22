@@ -40,10 +40,10 @@ export default function Home() {
     localStorage.setItem("dinnercall_saved_recipes", JSON.stringify(updatedRecipes));
   };
 
-  const copyRecipe = async () => {
-    if (!recipe) return;
+ const getRecipeText = () => {
+  if (!recipe) return "";
 
-    const recipeText = `${recipe.name}
+  return `${recipe.name}
 
 Why this works:
 ${recipe.why}
@@ -53,11 +53,29 @@ ${recipe.ingredients.map((item) => `- ${item}`).join("\n")}
 
 Instructions:
 ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
+};
 
-    await navigator.clipboard.writeText(recipeText);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+const copyRecipe = async () => {
+  if (!recipe) return;
+
+  await navigator.clipboard.writeText(getRecipeText());
+  setCopied(true);
+  setTimeout(() => setCopied(false), 2000);
+};
+
+const downloadRecipe = () => {
+  if (!recipe) return;
+
+  const blob = new Blob([getRecipeText()], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${recipe.name}.txt`;
+  a.click();
+
+  URL.revokeObjectURL(url);
+};
 
   const handleClick = async () => {
     if (!ingredients.trim()) return;
