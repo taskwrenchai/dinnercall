@@ -133,7 +133,7 @@ const downloadRecipe = () => {
   setTimeout(() => {
   recipeRef.current?.scrollIntoView({
     behavior: "smooth",
-    block: "center",
+    block: "start",
   });
 }, 300);
 }
@@ -275,7 +275,7 @@ const downloadRecipe = () => {
         {error && <p style={{ color: "#B42318", fontWeight: "bold" }}>{error}</p>}
 
         {recipe && (
-  <section ref={recipeRef} style={recipeCardStyle}>
+  <section style={recipeCardStyle}>
             <p style={eyebrowStyle}>Tonight’s DinnerCall</p>
 
             <h2
@@ -286,6 +286,8 @@ const downloadRecipe = () => {
                 lineHeight: "1.08",
               }}
             >
+<div ref={recipeRef} style={{ scrollMarginTop: "24px" }} />
+
               {recipe.name}
             </h2>
 
