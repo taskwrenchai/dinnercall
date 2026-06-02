@@ -9,6 +9,13 @@ type Recipe = {
   steps: string[];
 };
 
+const loadingMessages = [
+  "🥕 Chopping vegetables...",
+  "🧂 Checking the pantry...",
+  "🍳 Heating the skillet...",
+  "🍽️ Calling dinner...",
+];
+
 export default function Home() {
   const [ingredients, setIngredients] = useState("");
   const [avoidIngredients, setAvoidIngredients] = useState("");
@@ -21,11 +28,27 @@ export default function Home() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
 
   useEffect(() => {
     const saved = localStorage.getItem("dinnercall_saved_recipes");
     if (saved) setSavedRecipes(JSON.parse(saved));
   }, []);
+
+  useEffect(() => {
+  if (!loading) {
+    setLoadingMessageIndex(0);
+    return;
+  }
+
+  const interval = setInterval(() => {
+    setLoadingMessageIndex((currentIndex) =>
+      currentIndex === loadingMessages.length - 1 ? 0 : currentIndex + 1
+    );
+  }, 1400);
+
+  return () => clearInterval(interval);
+}, [loading]);
 
   const saveRecipe = () => {
     if (!recipe) return;
@@ -224,7 +247,7 @@ const downloadRecipe = () => {
             </label>
 
             <button onClick={handleClick} disabled={loading} style={mainButtonStyle}>
-              {loading ? "Deciding..." : "Decide Dinner"}
+              {loading ? loadingMessages[loadingMessageIndex] : "Decide Dinner"}
             </button>
           </div>
 
@@ -438,7 +461,8 @@ const mainButtonStyle = {
   fontSize: "16px",
   fontWeight: "bold",
   cursor: "pointer",
-  minWidth: "190px",
+  minWidth: "260px",
+whiteSpace: "nowrap" as const,
 };
 
 const chipStyle = {
