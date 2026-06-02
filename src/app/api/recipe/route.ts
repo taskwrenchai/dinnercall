@@ -52,9 +52,23 @@ Return ONLY valid JSON in this exact shape:
 {
   "name": "Recipe name",
   "why": "Short explanation of why this works",
+  "calories": "650",
+  "protein": "45g",
+  "carbs": "40g",
+  "fat": "25g",
   "ingredients": ["item 1", "item 2"],
   "steps": ["step one", "step two"]
 }
+
+Estimate nutrition PER SERVING.
+
+Provide:
+- calories
+- protein
+- carbs
+- fat
+
+Use realistic estimates based on the ingredients and portion size.
 
 Make the instructions detailed enough for a normal home cook to follow.
 No markdown. No extra text.

@@ -7,6 +7,10 @@ type Recipe = {
   why: string;
   ingredients: string[];
   steps: string[];
+  calories: string;
+  protein: string;
+  carbs: string;
+  fat: string;
 };
 
 const loadingMessages = [
@@ -300,6 +304,12 @@ const downloadRecipe = () => {
                 ))}
               </div>
             )}
+<div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "28px" }}>
+  <span style={badgeStyle}>🔥 {recipe.calories} calories</span>
+  <span style={badgeStyle}>💪 {recipe.protein} protein</span>
+  <span style={badgeStyle}>🍚 {recipe.carbs} carbs</span>
+  <span style={badgeStyle}>🥑 {recipe.fat} fat</span>
+</div>
 
             <div
               style={{
