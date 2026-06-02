@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 type Recipe = {
   name: string;
@@ -29,6 +29,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  const recipeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("dinnercall_saved_recipes");
@@ -127,8 +128,15 @@ const downloadRecipe = () => {
       if (!res.ok) {
         setError(data.error || "Something went wrong.");
       } else {
-        setRecipe(data.recipe);
-      }
+  setRecipe(data.recipe);
+
+  setTimeout(() => {
+  recipeRef.current?.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
+}, 300);
+}
     } catch {
       setError("Something went wrong.");
     } finally {
@@ -267,7 +275,7 @@ const downloadRecipe = () => {
         {error && <p style={{ color: "#B42318", fontWeight: "bold" }}>{error}</p>}
 
         {recipe && (
-          <section style={recipeCardStyle}>
+  <section ref={recipeRef} style={recipeCardStyle}>
             <p style={eyebrowStyle}>Tonight’s DinnerCall</p>
 
             <h2
