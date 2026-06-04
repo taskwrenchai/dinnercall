@@ -34,6 +34,8 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const recipeRef = useRef<HTMLDivElement>(null);
+  const [adjustmentRequest, setAdjustmentRequest] = useState("");
+  const [adjusting, setAdjusting] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("dinnercall_saved_recipes");
@@ -103,6 +105,37 @@ const downloadRecipe = () => {
   a.click();
 
   URL.revokeObjectURL(url);
+};
+
+const adjustRecipe = async () => {
+  if (!recipe || !adjustmentRequest.trim()) return;
+
+  setAdjusting(true);
+  setError("");
+
+  try {
+    const res = await fetch("/api/adjust-recipe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        recipe,
+        adjustmentRequest,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error || "Something went wrong.");
+    } else {
+      setRecipe(data.recipe);
+      setAdjustmentRequest("");
+    }
+  } catch {
+    setError("Something went wrong.");
+  } finally {
+    setAdjusting(false);
+  }
 };
 
   const handleClick = async () => {
@@ -347,6 +380,47 @@ const downloadRecipe = () => {
                 </li>
               ))}
             </ol>
+
+<div
+  style={{
+    background: "#F7F6F1",
+    border: "1px solid #ECEEE9",
+    borderRadius: "16px",
+    padding: "20px",
+    marginTop: "32px",
+  }}
+>
+  <h3 style={{ marginTop: 0 }}>Need to change something?</h3>
+
+  <p style={{ color: "#52616B", lineHeight: "1.6" }}>
+    Tell DinnerCall what to adjust, like "I only have 1 lb beef" or
+    "I don't have soy sauce."
+  </p>
+
+  <input
+    type="text"
+    placeholder="I don't have soy sauce..."
+    value={adjustmentRequest}
+    onChange={(e) => setAdjustmentRequest(e.target.value)}
+    style={{
+      width: "100%",
+      boxSizing: "border-box",
+      padding: "14px",
+      borderRadius: "12px",
+      border: "1px solid #D9DED6",
+      fontSize: "16px",
+      marginBottom: "12px",
+    }}
+  />
+
+  <button
+    onClick={adjustRecipe}
+    disabled={adjusting}
+    style={greenButtonStyle}
+  >
+    {adjusting ? "Adjusting..." : "Adjust Recipe"}
+  </button>
+</div>
 
             <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginTop: "30px" }}>
               <button onClick={saveRecipe} style={greenButtonStyle}>
