@@ -11,6 +11,7 @@ type Recipe = {
   protein: string;
   carbs: string;
   fat: string;
+  adjustmentNote?: string;
 };
 
 const loadingMessages = [
@@ -130,6 +131,14 @@ const adjustRecipe = async () => {
     } else {
       setRecipe(data.recipe);
       setAdjustmentRequest("");
+
+setTimeout(() => {
+    recipeRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, 300);
+      
     }
   } catch {
     setError("Something went wrong.");
@@ -343,6 +352,23 @@ const adjustRecipe = async () => {
   <span style={badgeStyle}>🍚 {recipe.carbs} carbs</span>
   <span style={badgeStyle}>🥑 {recipe.fat} fat</span>
 </div>
+
+{recipe.adjustmentNote && (
+  <div
+    style={{
+      background: "#F7F6F1",
+      border: "1px solid #D9DED6",
+      borderRadius: "16px",
+      padding: "16px 18px",
+      marginBottom: "24px",
+      color: "#52616B",
+      lineHeight: "1.6",
+    }}
+  >
+    <strong style={{ color: "#1F2933" }}>Adjusted:</strong>{" "}
+    {recipe.adjustmentNote}
+  </div>
+)}
 
             <div
               style={{

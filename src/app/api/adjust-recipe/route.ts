@@ -38,9 +38,15 @@ Return ONLY valid JSON in this exact shape:
   "protein": "45g",
   "carbs": "40g",
   "fat": "25g",
+  "adjustmentNote": "Short note explaining what changed or what ingredient was substituted",
   "ingredients": ["item 1"],
   "steps": ["step 1"]
 }
+
+Include an adjustmentNote that clearly explains what changed. If the user is missing an ingredient, suggest a practical substitute when possible.
+
+Return ONLY valid JSON. No markdown. No extra text.
+
 `
     });
 
