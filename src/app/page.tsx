@@ -242,6 +242,22 @@ setTimeout(() => {
           </p>
         </div>
 
+{error && (
+  <div
+    style={{
+      background: "#FFF4E5",
+      border: "1px solid #FFD8A8",
+      color: "#8A5A00",
+      padding: "12px 16px",
+      borderRadius: "12px",
+      marginBottom: "16px",
+      fontWeight: "bold",
+    }}
+  >
+    {error}
+  </div>
+)}
+
         <div style={cardStyle}>
           <label style={labelStyle}>Ingredients on hand</label>
 
@@ -322,8 +338,6 @@ setTimeout(() => {
             ))}
           </div>
         </div>
-
-        {error && <p style={{ color: "#B42318", fontWeight: "bold" }}>{error}</p>}
 
         {recipe && (
   <section style={recipeCardStyle}>
