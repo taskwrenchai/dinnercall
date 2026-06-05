@@ -148,8 +148,13 @@ setTimeout(() => {
 };
 
   const handleClick = async () => {
-    if (!ingredients.trim()) return;
-
+    if (!ingredients.trim()) {
+  setError(
+    "Oops! DinnerCall can't decide dinner if you don't tell me what's in the kitchen. 🍳"
+  );
+  return;
+}
+    setError("");
     setLoading(true);
     setRecipe(null);
     setError("");
