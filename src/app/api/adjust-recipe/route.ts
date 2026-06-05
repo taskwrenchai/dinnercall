@@ -45,6 +45,8 @@ Return ONLY valid JSON in this exact shape:
 
 Include an adjustmentNote that clearly explains what changed. If the user is missing an ingredient, suggest a practical substitute when possible.
 
+Use U.S. kitchen measurements whenever possible. Prefer cups, tablespoons, teaspoons, ounces, pounds, and common item counts instead of grams or milliliters. For example, use "1 lb chicken breast" instead of "450g chicken breast."
+
 Return ONLY valid JSON. No markdown. No extra text.
 
 `

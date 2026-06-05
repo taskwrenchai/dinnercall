@@ -72,6 +72,9 @@ Use realistic estimates based on the ingredients and portion size.
 
 Make the instructions detailed enough for a normal home cook to follow.
 No markdown. No extra text.
+
+Use U.S. kitchen measurements whenever possible. Prefer cups, tablespoons, teaspoons, ounces, pounds, and common item counts instead of grams or milliliters. For example, use "1 lb chicken breast" instead of "450g chicken breast."
+
       `,
     });
 
