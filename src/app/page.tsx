@@ -39,9 +39,34 @@ export default function Home() {
   const [adjusting, setAdjusting] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("dinnercall_saved_recipes");
-    if (saved) setSavedRecipes(JSON.parse(saved));
-  }, []);
+  const saved = localStorage.getItem("dinnercall_saved_recipes");
+  if (saved) setSavedRecipes(JSON.parse(saved));
+
+  const savedPreferences = localStorage.getItem("dinnercall_preferences");
+  if (savedPreferences) {
+    const preferences = JSON.parse(savedPreferences);
+
+    if (preferences.servings) setServings(preferences.servings);
+    if (preferences.mealPreference) setMealPreference(preferences.mealPreference);
+    if (preferences.maxTime) setMaxTime(preferences.maxTime);
+    if (preferences.avoidIngredients) setAvoidIngredients(preferences.avoidIngredients);
+    if (typeof preferences.kidFriendly === "boolean") {
+      setKidFriendly(preferences.kidFriendly);
+    }
+  }
+}, []);
+
+useEffect(() => {
+  const preferences = {
+    servings,
+    mealPreference,
+    maxTime,
+    avoidIngredients,
+    kidFriendly,
+  };
+
+  localStorage.setItem("dinnercall_preferences", JSON.stringify(preferences));
+}, [servings, mealPreference, maxTime, avoidIngredients, kidFriendly]);
 
   useEffect(() => {
   if (!loading) {
