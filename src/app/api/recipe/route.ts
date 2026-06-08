@@ -7,7 +7,7 @@ const client = new OpenAI({
 
 export async function POST(req: Request) {
   try {
-const { ingredients, servings, mealPreference, avoidIngredients, maxTime, kidFriendly
+const { ingredients, servings, mealPreference, avoidIngredients, maxTime, kidFriendly, mealType,
  } = await req.json();
 
     if (!ingredients || !ingredients.trim()) {
@@ -20,8 +20,7 @@ const { ingredients, servings, mealPreference, avoidIngredients, maxTime, kidFri
     const response = await client.responses.create({
       model: "gpt-4.1-mini",
       input: `
-Create one simple but genuinely GOOD dinner recipe using these ingredients: ${ingredients}.
-
+Create one simple but genuinely GOOD ${mealType || "Dinner"} recipe...
 Make the recipe for ${servings || "4"} servings.
 
 ${kidFriendly ? "The recipe should be kid-friendly and appeal to children." : ""}

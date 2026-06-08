@@ -37,6 +37,7 @@ export default function Home() {
   const recipeRef = useRef<HTMLDivElement>(null);
   const [adjustmentRequest, setAdjustmentRequest] = useState("");
   const [adjusting, setAdjusting] = useState(false);
+  const [mealType, setMealType] = useState("Dinner");
 
   useEffect(() => {
   const saved = localStorage.getItem("dinnercall_saved_recipes");
@@ -51,8 +52,8 @@ export default function Home() {
     if (preferences.maxTime) setMaxTime(preferences.maxTime);
     if (preferences.avoidIngredients) setAvoidIngredients(preferences.avoidIngredients);
     if (typeof preferences.kidFriendly === "boolean") {
-      setKidFriendly(preferences.kidFriendly);
-    }
+      setKidFriendly(preferences.kidFriendly)};
+    if (preferences.mealType) setMealType(preferences.mealType);
   }
 }, []);
 
@@ -63,10 +64,11 @@ useEffect(() => {
     maxTime,
     avoidIngredients,
     kidFriendly,
+    mealType
   };
 
   localStorage.setItem("dinnercall_preferences", JSON.stringify(preferences));
-}, [servings, mealPreference, maxTime, avoidIngredients, kidFriendly]);
+}, [servings, mealPreference, maxTime, avoidIngredients, kidFriendly, mealType]);
 
   useEffect(() => {
   if (!loading) {
@@ -217,6 +219,7 @@ setTimeout(() => {
           avoidIngredients,
           maxTime,
           kidFriendly,
+          mealType,
         }),
       });
 
@@ -242,6 +245,7 @@ setTimeout(() => {
   };
 
   const recipeBadges = [
+    mealType,
     `${servings} servings`,
     mealPreference !== "No Preference" ? mealPreference : null,
     maxTime !== "No Preference" ? maxTime : null,
@@ -329,6 +333,25 @@ setTimeout(() => {
           />
 
           <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginTop: "18px" }}>
+
+<select
+  value={mealType}
+  onChange={(e) => setMealType(e.target.value)}
+  style={{
+    padding: "16px",
+    borderRadius: "12px",
+    border: "1px solid #D9DED6",
+    fontSize: "16px",
+    background: "#FFFFFF",
+  }}
+>
+  <option value="Dinner">Dinner</option>
+  <option value="Breakfast">Breakfast</option>
+  <option value="Lunch">Lunch</option>
+  <option value="Snack">Snack</option>
+  <option value="Dessert">Dessert</option>
+</select>
+
             <select value={servings} onChange={(e) => setServings(e.target.value)} style={selectStyle}>
               <option value="2">2 servings</option>
               <option value="4">4 servings</option>
