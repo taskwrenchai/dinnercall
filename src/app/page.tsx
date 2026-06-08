@@ -133,6 +133,27 @@ const downloadRecipe = () => {
   URL.revokeObjectURL(url);
 };
 
+const shareRecipe = async () => {
+  if (!recipe) return;
+
+  const recipeText = getRecipeText();
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: recipe.name,
+        text: recipeText,
+      });
+    } catch {
+      // User canceled share. No action needed.
+    }
+  } else {
+    await navigator.clipboard.writeText(recipeText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+};
+
 const adjustRecipe = async () => {
   if (!recipe || !adjustmentRequest.trim()) return;
 
@@ -504,6 +525,10 @@ setTimeout(() => {
               <button onClick={copyRecipe} style={whiteButtonStyle}>
                 {copied ? "Copied!" : "Copy Recipe"}
               </button>
+
+<button onClick={shareRecipe} style={whiteButtonStyle}>
+  Share Recipe
+</button>
 
               <button onClick={() => setRecipe(null)} style={whiteButtonStyle}>
                 Clear Recipe
