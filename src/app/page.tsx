@@ -1,17 +1,17 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Recipe = {
   name: string;
   why: string;
-  ingredients: string[];
-  steps: string[];
   calories: string;
   protein: string;
   carbs: string;
   fat: string;
   adjustmentNote?: string;
+  ingredients: string[];
+  steps: string[];
 };
 
 const loadingMessages = [
@@ -25,83 +25,81 @@ export default function Home() {
   const [ingredients, setIngredients] = useState("");
   const [avoidIngredients, setAvoidIngredients] = useState("");
   const [servings, setServings] = useState("4");
+  const [mealType, setMealType] = useState("Dinner");
   const [mealPreference, setMealPreference] = useState("No Preference");
   const [maxTime, setMaxTime] = useState("No Preference");
   const [kidFriendly, setKidFriendly] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
+  const [weeklyPlan, setWeeklyPlan] = useState<string[]>([]);
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [planningWeek, setPlanningWeek] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
-  const recipeRef = useRef<HTMLDivElement>(null);
   const [adjustmentRequest, setAdjustmentRequest] = useState("");
   const [adjusting, setAdjusting] = useState(false);
-  const [mealType, setMealType] = useState("Dinner");
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+
+  const recipeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-  const saved = localStorage.getItem("dinnercall_saved_recipes");
-  if (saved) setSavedRecipes(JSON.parse(saved));
+    const saved = localStorage.getItem("dinnercall_saved_recipes");
+    if (saved) setSavedRecipes(JSON.parse(saved));
 
-  const savedPreferences = localStorage.getItem("dinnercall_preferences");
-  if (savedPreferences) {
-    const preferences = JSON.parse(savedPreferences);
+    const savedPreferences = localStorage.getItem("dinnercall_preferences");
+    if (savedPreferences) {
+      const preferences = JSON.parse(savedPreferences);
 
-    if (preferences.servings) setServings(preferences.servings);
-    if (preferences.mealPreference) setMealPreference(preferences.mealPreference);
-    if (preferences.maxTime) setMaxTime(preferences.maxTime);
-    if (preferences.avoidIngredients) setAvoidIngredients(preferences.avoidIngredients);
-    if (typeof preferences.kidFriendly === "boolean") {
-      setKidFriendly(preferences.kidFriendly)};
-    if (preferences.mealType) setMealType(preferences.mealType);
-  }
-}, []);
-
-useEffect(() => {
-  const preferences = {
-    servings,
-    mealPreference,
-    maxTime,
-    avoidIngredients,
-    kidFriendly,
-    mealType
-  };
-
-  localStorage.setItem("dinnercall_preferences", JSON.stringify(preferences));
-}, [servings, mealPreference, maxTime, avoidIngredients, kidFriendly, mealType]);
+      if (preferences.servings) setServings(preferences.servings);
+      if (preferences.mealType) setMealType(preferences.mealType);
+      if (preferences.mealPreference) setMealPreference(preferences.mealPreference);
+      if (preferences.maxTime) setMaxTime(preferences.maxTime);
+      if (preferences.avoidIngredients) setAvoidIngredients(preferences.avoidIngredients);
+      if (typeof preferences.kidFriendly === "boolean") {
+        setKidFriendly(preferences.kidFriendly);
+      }
+    }
+  }, []);
 
   useEffect(() => {
-  if (!loading) {
-    setLoadingMessageIndex(0);
-    return;
-  }
+    const preferences = {
+      servings,
+      mealType,
+      mealPreference,
+      maxTime,
+      avoidIngredients,
+      kidFriendly,
+    };
 
-  const interval = setInterval(() => {
-    setLoadingMessageIndex((currentIndex) =>
-      currentIndex === loadingMessages.length - 1 ? 0 : currentIndex + 1
-    );
-  }, 1400);
+    localStorage.setItem("dinnercall_preferences", JSON.stringify(preferences));
+  }, [servings, mealType, mealPreference, maxTime, avoidIngredients, kidFriendly]);
 
-  return () => clearInterval(interval);
-}, [loading]);
+  useEffect(() => {
+    if (!loading) {
+      setLoadingMessageIndex(0);
+      return;
+    }
 
-  const saveRecipe = () => {
-    if (!recipe) return;
-    const updatedRecipes = [recipe, ...savedRecipes];
-    setSavedRecipes(updatedRecipes);
-    localStorage.setItem("dinnercall_saved_recipes", JSON.stringify(updatedRecipes));
-  };
+    const interval = setInterval(() => {
+      setLoadingMessageIndex((currentIndex) =>
+        currentIndex === loadingMessages.length - 1 ? 0 : currentIndex + 1
+      );
+    }, 1400);
 
-  const deleteRecipe = (index: number) => {
-    const updatedRecipes = savedRecipes.filter((_, savedIndex) => savedIndex !== index);
-    setSavedRecipes(updatedRecipes);
-    localStorage.setItem("dinnercall_saved_recipes", JSON.stringify(updatedRecipes));
-  };
+    return () => clearInterval(interval);
+  }, [loading]);
 
- const getRecipeText = () => {
-  if (!recipe) return "";
+  const getRecipeText = () => {
+    if (!recipe) return "";
 
-  return `${recipe.name}
+    return `${recipe.name}
+
+Calories: ${recipe.calories}
+Protein: ${recipe.protein}
+Carbs: ${recipe.carbs}
+Fat: ${recipe.fat}
 
 Why this works:
 ${recipe.why}
@@ -111,105 +109,123 @@ ${recipe.ingredients.map((item) => `- ${item}`).join("\n")}
 
 Instructions:
 ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
-};
+  };
 
-const copyRecipe = async () => {
+  const saveRecipe = () => {
   if (!recipe) return;
 
-  await navigator.clipboard.writeText(getRecipeText());
-  setCopied(true);
-  setTimeout(() => setCopied(false), 2000);
+  const updated = [recipe, ...savedRecipes];
+  setSavedRecipes(updated);
+  localStorage.setItem("dinnercall_saved_recipes", JSON.stringify(updated));
+
+  setSaved(true);
+  setTimeout(() => setSaved(false), 2000);
 };
 
-const downloadRecipe = () => {
-  if (!recipe) return;
+  const copyRecipe = async () => {
+    if (!recipe) return;
 
-  const blob = new Blob([getRecipeText()], { type: "text/plain" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${recipe.name}.txt`;
-  a.click();
-
-  URL.revokeObjectURL(url);
-};
-
-const shareRecipe = async () => {
-  if (!recipe) return;
-
-  const recipeText = getRecipeText();
-
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: recipe.name,
-        text: recipeText,
-      });
-    } catch {
-      // User canceled share. No action needed.
-    }
-  } else {
-    await navigator.clipboard.writeText(recipeText);
+    await navigator.clipboard.writeText(getRecipeText());
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  }
-};
+  };
 
-const adjustRecipe = async () => {
-  if (!recipe || !adjustmentRequest.trim()) return;
+  const downloadRecipe = () => {
+    if (!recipe) return;
 
-  setAdjusting(true);
-  setError("");
+    const blob = new Blob([getRecipeText()], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
 
-  try {
-    const res = await fetch("/api/adjust-recipe", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        recipe,
-        adjustmentRequest,
-      }),
-    });
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${recipe.name.replaceAll(" ", "-").toLowerCase()}.txt`;
+    link.click();
 
-    const data = await res.json();
+    URL.revokeObjectURL(url);
+  };
 
-    if (!res.ok) {
-      setError(data.error || "Something went wrong.");
+  const shareRecipe = async () => {
+    if (!recipe) return;
+
+    const recipeText = getRecipeText();
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: recipe.name,
+          text: recipeText,
+        });
+      } catch {
+        // User canceled share.
+      }
     } else {
-      setRecipe(data.recipe);
-      setAdjustmentRequest("");
-
-setTimeout(() => {
-    recipeRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  }, 300);
-      
+      await navigator.clipboard.writeText(recipeText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
-  } catch {
-    setError("Something went wrong.");
-  } finally {
-    setAdjusting(false);
-  }
-};
+  };
 
-  const handleClick = async () => {
-    if (!ingredients.trim()) {
-  setError(
-    "Oops! DinnerCall can't decide dinner if you don't tell me what's in the kitchen. 🍳"
-  );
-  return;
-}
-    setError("");
-    setLoading(true);
+  const clearRecipe = () => {
     setRecipe(null);
+    setWeeklyPlan([]);
     setError("");
     setCopied(false);
+    setAdjustmentRequest("");
+  };
+
+  const adjustRecipe = async () => {
+    if (!recipe || !adjustmentRequest.trim()) return;
+
+    setAdjusting(true);
+    setError("");
 
     try {
-      const res = await fetch("/api/recipe", {
+      const res = await fetch("/api/adjust-recipe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          recipe,
+          adjustmentRequest,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Something went wrong.");
+      } else {
+        setRecipe(data.recipe);
+        setAdjustmentRequest("");
+
+        setTimeout(() => {
+          recipeRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }, 300);
+      }
+    } catch {
+      setError("Something went wrong.");
+    } finally {
+      setAdjusting(false);
+    }
+  };
+
+  const planMyWeek = async () => {
+    if (!ingredients.trim()) {
+      setError(
+        "🔔 My dinner bell isn't ringing yet. Tell me what ingredients you have first."
+      );
+      return;
+    }
+
+    setPlanningWeek(true);
+    setError("");
+    setWeeklyPlan([]);
+    setRecipe(null);
+
+    try {
+      const res = await fetch("/api/weekly-plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -219,7 +235,6 @@ setTimeout(() => {
           avoidIngredients,
           maxTime,
           kidFriendly,
-          mealType,
         }),
       });
 
@@ -228,15 +243,58 @@ setTimeout(() => {
       if (!res.ok) {
         setError(data.error || "Something went wrong.");
       } else {
-  setRecipe(data.recipe);
+        setWeeklyPlan(data.meals || []);
+      }
+    } catch {
+      setError("Something went wrong.");
+    } finally {
+      setPlanningWeek(false);
+    }
+  };
 
-  setTimeout(() => {
-  recipeRef.current?.scrollIntoView({
-    behavior: "smooth",
-    block: "start",
-  });
-}, 300);
-}
+  const handleClick = async () => {
+    if (!ingredients.trim()) {
+      setError(
+        "Oops! DinnerCall can't decide dinner if you don't tell me what's in the kitchen. 🍳"
+      );
+      return;
+    }
+
+    setError("");
+    setLoading(true);
+    setRecipe(null);
+    setWeeklyPlan([]);
+    setCopied(false);
+
+    try {
+      const res = await fetch("/api/recipe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ingredients,
+          servings,
+          mealType,
+          mealPreference,
+          avoidIngredients,
+          maxTime,
+          kidFriendly,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Something went wrong.");
+      } else {
+        setRecipe(data.recipe);
+
+        setTimeout(() => {
+          recipeRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }, 300);
+      }
     } catch {
       setError("Something went wrong.");
     } finally {
@@ -275,38 +333,39 @@ setTimeout(() => {
               fontSize: "clamp(36px, 7vw, 56px)",
               lineHeight: "1.05",
               margin: "0 0 16px",
+              fontWeight: 400,
             }}
           >
-            What’s for dinner?
+            What&apos;s for dinner?
           </h1>
 
           <p
             style={{
-              fontSize: "clamp(18px, 3vw, 22px)",
+              fontSize: "clamp(18px, 3vw, 24px)",
               color: "#52616B",
-              maxWidth: "620px",
-              lineHeight: "1.6",
+              margin: 0,
             }}
           >
-            Tell us what you have, and we’ll decide dinner.
+            Tell us what you have, and we&apos;ll decide dinner.
           </p>
         </div>
 
-{error && (
-  <div
-    style={{
-      background: "#FFF4E5",
-      border: "1px solid #FFD8A8",
-      color: "#8A5A00",
-      padding: "12px 16px",
-      borderRadius: "12px",
-      marginBottom: "16px",
-      fontWeight: "bold",
-    }}
-  >
-    {error}
-  </div>
-)}
+        {error && (
+          <div
+            style={{
+              background: "#FFF4E5",
+              border: "1px solid #FFD8A8",
+              color: "#8A5A00",
+              padding: "12px 16px",
+              borderRadius: "12px",
+              marginBottom: "16px",
+              fontWeight: "bold",
+              lineHeight: "1.5",
+            }}
+          >
+            {error}
+          </div>
+        )}
 
         <div style={cardStyle}>
           <label style={labelStyle}>Ingredients on hand</label>
@@ -316,13 +375,12 @@ setTimeout(() => {
             placeholder="chicken, rice, broccoli..."
             value={ingredients}
             onChange={(e) => setIngredients(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !loading) handleClick();
-            }}
             style={inputStyle}
           />
 
-          <label style={labelStyle}>Dislikes / Allergies</label>
+          <label style={{ ...labelStyle, marginTop: "18px" }}>
+            Dislikes / Allergies
+          </label>
 
           <input
             type="text"
@@ -332,27 +390,31 @@ setTimeout(() => {
             style={inputStyle}
           />
 
-          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginTop: "18px" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "12px",
+              flexWrap: "wrap",
+              marginTop: "18px",
+            }}
+          >
+            <select
+              value={mealType}
+              onChange={(e) => setMealType(e.target.value)}
+              style={selectStyle}
+            >
+              <option value="Dinner">Dinner</option>
+              <option value="Breakfast">Breakfast</option>
+              <option value="Lunch">Lunch</option>
+              <option value="Snack">Snack</option>
+              <option value="Dessert">Dessert</option>
+            </select>
 
-<select
-  value={mealType}
-  onChange={(e) => setMealType(e.target.value)}
-  style={{
-    padding: "16px",
-    borderRadius: "12px",
-    border: "1px solid #D9DED6",
-    fontSize: "16px",
-    background: "#FFFFFF",
-  }}
->
-  <option value="Dinner">Dinner</option>
-  <option value="Breakfast">Breakfast</option>
-  <option value="Lunch">Lunch</option>
-  <option value="Snack">Snack</option>
-  <option value="Dessert">Dessert</option>
-</select>
-
-            <select value={servings} onChange={(e) => setServings(e.target.value)} style={selectStyle}>
+            <select
+              value={servings}
+              onChange={(e) => setServings(e.target.value)}
+              style={selectStyle}
+            >
               <option value="2">2 servings</option>
               <option value="4">4 servings</option>
               <option value="6">6 servings</option>
@@ -370,17 +432,30 @@ setTimeout(() => {
               <option value="Carnivore">Carnivore</option>
               <option value="Vegetarian">Vegetarian</option>
               <option value="Vegan">Vegan</option>
+              <option value="Keto">Keto</option>
+              <option value="Paleo">Paleo</option>
+              <option value="Whole30">Whole30</option>
             </select>
 
-            <select value={maxTime} onChange={(e) => setMaxTime(e.target.value)} style={selectStyle}>
+            <select
+              value={maxTime}
+              onChange={(e) => setMaxTime(e.target.value)}
+              style={selectStyle}
+            >
               <option value="No Preference">Any Time</option>
-              <option value="15 minutes or less">15 min or less</option>
               <option value="30 minutes or less">30 min or less</option>
               <option value="45 minutes or less">45 min or less</option>
               <option value="60 minutes or less">60 min or less</option>
             </select>
 
-            <label style={toggleStyle}>
+            <label
+              style={{
+                ...selectStyle,
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
               <input
                 type="checkbox"
                 checked={kidFriendly}
@@ -395,22 +470,111 @@ setTimeout(() => {
             </button>
           </div>
 
-          <div style={{ marginTop: "18px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+          <div
+            style={{
+              marginTop: "18px",
+              display: "flex",
+              gap: "10px",
+              flexWrap: "wrap",
+            }}
+          >
             {[
               "chicken, rice, broccoli",
               "ground beef, tortillas, cheese",
               "salmon, potatoes, asparagus",
             ].map((example) => (
-              <button key={example} onClick={() => setIngredients(example)} style={chipStyle}>
+              <button
+                key={example}
+                onClick={() => setIngredients(example)}
+                style={chipStyle}
+              >
                 {example}
               </button>
             ))}
           </div>
         </div>
 
+<div
+  style={{
+  background: "#FFFFFF",
+  borderRadius: "24px",
+  padding: "36px",
+  boxShadow: "0 18px 45px rgba(31, 41, 51, 0.08)",
+  marginBottom: "28px",
+}}
+>
+  <p
+    style={{
+      margin: "0 0 6px",
+      fontWeight: "bold",
+      color: "#6B8F71",
+      letterSpacing: "0.06em",
+      textTransform: "uppercase",
+      fontSize: "13px",
+    }}
+  >
+    Want to plan ahead?
+  </p>
+
+  <h3 style={{ margin: "0 0 8px", fontSize: "30px" }}>
+  Plan your week
+</h3>
+
+  <p
+  style={{
+    margin: "0 0 18px",
+    color: "#52616B",
+    lineHeight: "1.6",
+    fontSize: "17px",
+    maxWidth: "760px",
+  }}
+>
+  For best results, enter your proteins or main ingredients above. DinnerCall will use them to create five dinners for the week.
+</p>
+
+<button
+  onClick={planMyWeek}
+  disabled={planningWeek}
+  style={greenButtonStyle}
+>
+  {planningWeek ? "Planning your week..." : "Plan My Week"}
+</button>
+</div>
+
+        {weeklyPlan.length > 0 && (
+          <section style={recipeCardStyle}>
+            <p style={eyebrowStyle}>This Week&apos;s DinnerCall</p>
+
+            <h2
+              style={{
+                fontSize: "clamp(30px, 5vw, 46px)",
+                marginTop: "40px",
+                marginBottom: "24px",
+                lineHeight: "1.08",
+              }}        
+            >
+
+              5 Dinner Ideas
+            </h2>
+
+            <ul style={listStyle}>
+              {weeklyPlan.map((meal, index) => (
+                <li key={index} style={{ marginBottom: "14px" }}>
+                  <strong>
+                    {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"][index]}:
+                  </strong>{" "}
+                  {meal}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         {recipe && (
-  <section style={recipeCardStyle}>
-            <p style={eyebrowStyle}>Tonight’s DinnerCall</p>
+          <section style={recipeCardStyle}>
+            <p style={eyebrowStyle}>Tonight&apos;s DinnerCall</p>
+
+            <div ref={recipeRef} style={{ scrollMarginTop: "24px" }} />
 
             <h2
               style={{
@@ -420,43 +584,56 @@ setTimeout(() => {
                 lineHeight: "1.08",
               }}
             >
-<div ref={recipeRef} style={{ scrollMarginTop: "24px" }} />
-
               {recipe.name}
             </h2>
 
             {recipeBadges.length > 0 && (
-              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "28px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  flexWrap: "wrap",
+                  marginBottom: "28px",
+                }}
+              >
                 {recipeBadges.map((badge) => (
-                  <span key={badge} style={badgeStyle}>
+                  <span key={String(badge)} style={badgeStyle}>
                     {badge}
                   </span>
                 ))}
               </div>
             )}
-<div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "28px" }}>
-  <span style={badgeStyle}>🔥 {recipe.calories} calories</span>
-  <span style={badgeStyle}>💪 {recipe.protein} protein</span>
-  <span style={badgeStyle}>🍚 {recipe.carbs} carbs</span>
-  <span style={badgeStyle}>🥑 {recipe.fat} fat</span>
-</div>
 
-{recipe.adjustmentNote && (
-  <div
-    style={{
-      background: "#F7F6F1",
-      border: "1px solid #D9DED6",
-      borderRadius: "16px",
-      padding: "16px 18px",
-      marginBottom: "24px",
-      color: "#52616B",
-      lineHeight: "1.6",
-    }}
-  >
-    <strong style={{ color: "#1F2933" }}>Adjusted:</strong>{" "}
-    {recipe.adjustmentNote}
-  </div>
-)}
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                flexWrap: "wrap",
+                marginBottom: "28px",
+              }}
+            >
+              <span style={badgeStyle}>🔥 {recipe.calories} calories</span>
+              <span style={badgeStyle}>💪 {recipe.protein} protein</span>
+              <span style={badgeStyle}>🍚 {recipe.carbs} carbs</span>
+              <span style={badgeStyle}>🥑 {recipe.fat} fat</span>
+            </div>
+
+            {recipe.adjustmentNote && (
+              <div
+                style={{
+                  background: "#F7F6F1",
+                  border: "1px solid #D9DED6",
+                  borderRadius: "16px",
+                  padding: "16px 18px",
+                  marginBottom: "24px",
+                  color: "#52616B",
+                  lineHeight: "1.6",
+                }}
+              >
+                <strong style={{ color: "#1F2933" }}>Adjusted:</strong>{" "}
+                {recipe.adjustmentNote}
+              </div>
+            )}
 
             <div
               style={{
@@ -464,19 +641,14 @@ setTimeout(() => {
                 border: "1px solid #ECEEE9",
                 borderRadius: "16px",
                 padding: "20px",
-                marginBottom: "32px",
+                marginBottom: "36px",
               }}
             >
-              <h3 style={{ marginTop: 0, marginBottom: "10px", fontSize: "22px" }}>
-                Why this works
-              </h3>
-              <p style={{ color: "#52616B", lineHeight: "1.8", fontSize: "17px", marginBottom: 0 }}>
-                {recipe.why}
-              </p>
+              <h3 style={sectionTitleStyle}>Why this works</h3>
+              <p style={paragraphStyle}>{recipe.why}</p>
             </div>
 
             <h3 style={sectionTitleStyle}>Ingredients</h3>
-
             <ul style={listStyle}>
               {recipe.ingredients.map((item, index) => (
                 <li key={index} style={{ marginBottom: "8px" }}>
@@ -487,127 +659,144 @@ setTimeout(() => {
 
             <h3 style={sectionTitleStyle}>Instructions</h3>
 
-            <ol style={{ ...listStyle, listStyleType: "decimal" }}>
-              {recipe.steps.map((step, index) => (
-                <li key={index} style={{ marginBottom: "18px", paddingLeft: "4px" }}>
-                  {step}
-                </li>
-              ))}
-            </ol>
-
-<div
+            <ol
   style={{
-    background: "#F7F6F1",
-    border: "1px solid #ECEEE9",
-    borderRadius: "16px",
-    padding: "20px",
-    marginTop: "32px",
+    ...listStyle,
+    listStyleType: "decimal",
+    paddingLeft: "28px",
   }}
 >
-  <h3 style={{ marginTop: 0 }}>Need to change something?</h3>
+  {recipe.steps.map((step, index) => (
+    <li
+      key={index}
+      style={{
+        marginBottom: "18px",
+        paddingLeft: "6px",
+        display: "list-item",
+      }}
+    >
+      {step}
+    </li>
+  ))}
+</ol>
 
-  <p style={{ color: "#52616B", lineHeight: "1.6" }}>
-    Tell DinnerCall what to adjust, like "I only have 1 lb beef" or
-    "I don't have soy sauce."
-  </p>
+            <div
+              style={{
+                background: "#F7F6F1",
+                border: "1px solid #ECEEE9",
+                borderRadius: "16px",
+                padding: "20px",
+                marginTop: "32px",
+              }}
+            >
+              <h3 style={{ marginTop: 0 }}>Need to change something?</h3>
 
-  <input
-    type="text"
-    placeholder="I don't have soy sauce..."
-    value={adjustmentRequest}
-    onChange={(e) => setAdjustmentRequest(e.target.value)}
-    style={{
-      width: "100%",
-      boxSizing: "border-box",
-      padding: "14px",
-      borderRadius: "12px",
-      border: "1px solid #D9DED6",
-      fontSize: "16px",
-      marginBottom: "12px",
-    }}
-  />
+              <p style={{ color: "#52616B", lineHeight: "1.6" }}>
+                Tell DinnerCall what to adjust, like &quot;I only have 1 lb beef&quot; or
+                &quot;I don&apos;t have soy sauce.&quot;
+              </p>
 
-  <button
-    onClick={adjustRecipe}
-    disabled={adjusting}
-    style={greenButtonStyle}
-  >
-    {adjusting ? "Adjusting..." : "Adjust Recipe"}
-  </button>
-</div>
+              <input
+                type="text"
+                placeholder="I don't have soy sauce..."
+                value={adjustmentRequest}
+                onChange={(e) => setAdjustmentRequest(e.target.value)}
+                style={{
+                  width: "100%",
+                  boxSizing: "border-box",
+                  padding: "14px",
+                  borderRadius: "12px",
+                  border: "1px solid #D9DED6",
+                  fontSize: "16px",
+                  marginBottom: "12px",
+                }}
+              />
 
-            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginTop: "30px" }}>
-              <button onClick={saveRecipe} style={greenButtonStyle}>
-                Save Recipe
+              <button onClick={adjustRecipe} disabled={adjusting} style={greenButtonStyle}>
+                {adjusting ? "Adjusting..." : "Adjust Recipe"}
               </button>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                gap: "12px",
+                flexWrap: "wrap",
+                marginTop: "30px",
+              }}
+            >
+             <button onClick={saveRecipe} style={greenButtonStyle}>
+  {saved ? "Saved!" : "Save Recipe"}
+</button>
 
               <button onClick={downloadRecipe} style={whiteButtonStyle}>
-  Download Recipe
-</button>
+                Download Recipe
+              </button>
 
               <button onClick={copyRecipe} style={whiteButtonStyle}>
                 {copied ? "Copied!" : "Copy Recipe"}
               </button>
 
-<button onClick={shareRecipe} style={whiteButtonStyle}>
-  Share Recipe
-</button>
+              <button onClick={shareRecipe} style={whiteButtonStyle}>
+                Share Recipe
+              </button>
 
-              <button onClick={() => setRecipe(null)} style={whiteButtonStyle}>
+              <button onClick={clearRecipe} style={whiteButtonStyle}>
                 Clear Recipe
               </button>
             </div>
           </section>
         )}
 
-        {savedRecipes.length > 0 && (
-          <section style={cardStyle}>
-            <h2 style={{ marginTop: 0, marginBottom: "8px", fontSize: "32px" }}>
-              Saved Recipes
-            </h2>
+{savedRecipes.length > 0 && (
+  <section style={cardStyle}>
+    <h2 style={{ marginTop: 0, marginBottom: "8px", fontSize: "32px" }}>
+      Saved Recipes
+    </h2>
 
-            <p style={{ color: "#52616B", marginBottom: "24px" }}>
-              Your favorite DinnerCalls.
-            </p>
+    <p style={{ color: "#52616B", marginBottom: "24px" }}>
+      Your favorite DinnerCalls.
+    </p>
 
-            {savedRecipes.map((savedRecipe, index) => (
-              <div
-                key={index}
-                style={{
-                  display: "flex",
-                  gap: "12px",
-                  alignItems: "flex-start",
-                  padding: "18px 0",
-                  borderTop: index === 0 ? "none" : "1px solid #E5E7EB",
-                }}
-              >
-                <button
-                  onClick={() => setRecipe(savedRecipe)}
-                  style={{
-                    flex: 1,
-                    textAlign: "left",
-                    border: "none",
-                    background: "transparent",
-                    cursor: "pointer",
-                    padding: 0,
-                  }}
-                >
-                  <strong style={{ fontSize: "18px", color: "#1F2933" }}>
-                    {savedRecipe.name}
-                  </strong>
+    {savedRecipes.map((savedRecipe, index) => (
+      <div
+        key={index}
+        style={{
+          padding: "18px 0",
+          borderTop: index === 0 ? "none" : "1px solid #E5E7EB",
+        }}
+      >
+        <button
+          onClick={() => setRecipe(savedRecipe)}
+          style={{
+            textAlign: "left",
+            border: "none",
+            background: "transparent",
+            cursor: "pointer",
+            padding: 0,
+            width: "100%",
+          }}
+        >
+          <strong style={{ fontSize: "18px", color: "#1F2933" }}>
+            {savedRecipe.name}
+          </strong>
 
-                  <p style={{ color: "#52616B", marginBottom: 0, marginTop: "6px", lineHeight: "1.6" }}>
-                    {savedRecipe.why}
-                  </p>
-                </button>
+          <p
+            style={{
+              color: "#52616B",
+              marginBottom: 0,
+              marginTop: "6px",
+              lineHeight: "1.6",
+            }}
+          >
+            {savedRecipe.why}
+          </p>
+        </button>
+      </div>
+    ))}
+  </section>
+)}
 
-                <button onClick={() => deleteRecipe(index)} style={deleteButtonStyle}>
-                  Delete
-                </button>
-              </div>
-            ))}
-          </section>
-        )}
       </section>
     </main>
   );
@@ -615,33 +804,34 @@ setTimeout(() => {
 
 const cardStyle = {
   background: "#FFFFFF",
+  borderRadius: "24px",
   padding: "28px",
-  borderRadius: "22px",
-  boxShadow: "0 10px 35px rgba(0,0,0,0.06)",
+  boxShadow: "0 18px 45px rgba(31, 41, 51, 0.08)",
   marginBottom: "28px",
-  border: "1px solid #ECEEE9",
 };
 
 const recipeCardStyle = {
-  ...cardStyle,
-  padding: "34px",
+  background: "#FFFFFF",
+  borderRadius: "24px",
+  padding: "36px",
+  boxShadow: "0 18px 45px rgba(31, 41, 51, 0.08)",
+  marginBottom: "28px",
 };
 
 const labelStyle = {
   display: "block",
   fontWeight: "bold",
-  marginBottom: "12px",
-  fontSize: "16px",
+  marginBottom: "10px",
+  fontSize: "18px",
 };
 
 const inputStyle = {
   width: "100%",
   boxSizing: "border-box" as const,
   padding: "16px",
-  borderRadius: "12px",
+  borderRadius: "14px",
   border: "1px solid #D9DED6",
   fontSize: "16px",
-  marginBottom: "18px",
 };
 
 const selectStyle = {
@@ -650,18 +840,6 @@ const selectStyle = {
   border: "1px solid #D9DED6",
   fontSize: "16px",
   background: "#FFFFFF",
-};
-
-const toggleStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "10px",
-  padding: "16px",
-  borderRadius: "12px",
-  border: "1px solid #D9DED6",
-  background: "#FFFFFF",
-  fontSize: "16px",
-  cursor: "pointer",
 };
 
 const mainButtonStyle = {
@@ -674,78 +852,74 @@ const mainButtonStyle = {
   fontWeight: "bold",
   cursor: "pointer",
   minWidth: "260px",
-whiteSpace: "nowrap" as const,
+  whiteSpace: "nowrap" as const,
+};
+
+const greenButtonStyle = {
+  padding: "14px 22px",
+  borderRadius: "12px",
+  border: "none",
+  background: "#6B8F71",
+  color: "white",
+  fontSize: "16px",
+  fontWeight: "bold",
+  cursor: "pointer",
+};
+
+const whiteButtonStyle = {
+  padding: "14px 22px",
+  borderRadius: "12px",
+  border: "1px solid #D9DED6",
+  background: "#FFFFFF",
+  color: "#1F2933",
+  fontSize: "16px",
+  fontWeight: "bold",
+  cursor: "pointer",
 };
 
 const chipStyle = {
-  padding: "10px 14px",
+  padding: "10px 16px",
   borderRadius: "999px",
   border: "1px solid #D9DED6",
   background: "#F7F6F1",
   color: "#52616B",
+  fontSize: "15px",
   cursor: "pointer",
-  fontSize: "14px",
 };
 
 const eyebrowStyle = {
+  textTransform: "uppercase" as const,
+  letterSpacing: "0.08em",
   color: "#6B8F71",
   fontWeight: "bold",
-  marginBottom: "10px",
-  textTransform: "uppercase" as const,
-  letterSpacing: "0.06em",
-  fontSize: "13px",
+  fontSize: "14px",
 };
 
 const badgeStyle = {
-  padding: "8px 12px",
+  display: "inline-flex",
+  alignItems: "center",
+  padding: "10px 16px",
   borderRadius: "999px",
-  background: "#F7F6F1",
   border: "1px solid #D9DED6",
+  background: "#F7F6F1",
   color: "#52616B",
-  fontSize: "14px",
-  fontWeight: "600",
+  fontWeight: "bold",
 };
 
 const sectionTitleStyle = {
-  marginTop: "34px",
-  marginBottom: "14px",
   fontSize: "24px",
+  marginTop: "32px",
+  marginBottom: "12px",
+};
+
+const paragraphStyle = {
+  color: "#52616B",
+  lineHeight: "1.7",
+  fontSize: "17px",
 };
 
 const listStyle = {
   paddingLeft: "24px",
   lineHeight: "1.9",
   fontSize: "17px",
-};
-
-const greenButtonStyle = {
-  padding: "14px 18px",
-  borderRadius: "12px",
-  border: "none",
-  background: "#6B8F71",
-  color: "white",
-  fontSize: "15px",
-  fontWeight: "bold",
-  cursor: "pointer",
-};
-
-const whiteButtonStyle = {
-  padding: "14px 18px",
-  borderRadius: "12px",
-  border: "1px solid #D9DED6",
-  background: "#FFFFFF",
-  color: "#1F2933",
-  fontSize: "15px",
-  fontWeight: "bold",
-  cursor: "pointer",
-};
-
-const deleteButtonStyle = {
-  padding: "8px 12px",
-  borderRadius: "10px",
-  border: "1px solid #E5E7EB",
-  background: "#FFFFFF",
-  color: "#B42318",
-  cursor: "pointer",
-  fontWeight: "bold",
 };

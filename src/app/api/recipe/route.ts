@@ -16,12 +16,11 @@ const { ingredients, servings, mealPreference, avoidIngredients, maxTime, kidFri
         { status: 400 }
       );
     }
-
+   
     const response = await client.responses.create({
       model: "gpt-4.1-mini",
       input: `
-Create one simple but genuinely GOOD ${mealType || "Dinner"} recipe...
-Make the recipe for ${servings || "4"} servings.
+Create one simple but genuinely GOOD ${mealType || "Dinner"} recipe using these ingredients: ${ingredients}.
 
 ${kidFriendly ? "The recipe should be kid-friendly and appeal to children." : ""}
 
@@ -37,6 +36,11 @@ Maximum cook time: ${maxTime || "No Preference"}.
 
 Kid friendly: ${kidFriendly ? "Yes" : "No"}.
 
+The recipe MUST be based primarily on the user's ingredients on hand.
+
+Do not introduce a different main protein, starch, or main vegetable unless the user did not provide enough ingredients to make a realistic recipe.
+
+If extra ingredients are needed, keep them to common pantry staples or clearly label them as optional.
 
 The recipe should feel like advice from a smart home cook, not a generic AI.
 
