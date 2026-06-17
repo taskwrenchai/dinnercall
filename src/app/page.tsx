@@ -122,6 +122,18 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
   setTimeout(() => setSaved(false), 2000);
 };
 
+const deleteSavedRecipe = (indexToDelete: number) => {
+  const updated = savedRecipes.filter(
+    (_, index) => index !== indexToDelete
+  );
+
+  setSavedRecipes(updated);
+  localStorage.setItem(
+    "dinnercall_saved_recipes",
+    JSON.stringify(updated)
+  );
+};
+
   const copyRecipe = async () => {
     if (!recipe) return;
 
@@ -762,6 +774,9 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
       <div
         key={index}
         style={{
+          display: "flex",
+          gap: "12px",
+          alignItems: "flex-start",
           padding: "18px 0",
           borderTop: index === 0 ? "none" : "1px solid #E5E7EB",
         }}
@@ -769,12 +784,12 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
         <button
           onClick={() => setRecipe(savedRecipe)}
           style={{
+            flex: 1,
             textAlign: "left",
             border: "none",
             background: "transparent",
             cursor: "pointer",
             padding: 0,
-            width: "100%",
           }}
         >
           <strong style={{ fontSize: "18px", color: "#1F2933" }}>
@@ -792,10 +807,26 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
             {savedRecipe.why}
           </p>
         </button>
-      </div>
-    ))}
-  </section>
-)}
+
+        <button
+          onClick={() => deleteSavedRecipe(index)}
+          style={{
+            padding: "8px 12px",
+            borderRadius: "10px",
+            border: "1px solid #E5E7EB",
+            background: "#FFFFFF",
+            color: "#B42318",
+            cursor: "pointer",
+            fontWeight: "bold",
+            height: "fit-content",
+          }}
+        >
+          Delete
+        </button>
+              </div>
+      ))}
+    </section>
+  )}
 
       </section>
     </main>
