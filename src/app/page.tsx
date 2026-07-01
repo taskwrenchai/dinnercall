@@ -33,6 +33,7 @@ export default function Home() {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
   const [weeklyPlan, setWeeklyPlan] = useState<string[]>([]);
+  const [savedWeeklyPlans, setSavedWeeklyPlans] = useState<string[][]>([]);
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -41,10 +42,16 @@ export default function Home() {
   const [adjustmentRequest, setAdjustmentRequest] = useState("");
   const [adjusting, setAdjusting] = useState(false);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  const [weeklyAdjustmentRequest, setWeeklyAdjustmentRequest] = useState("");
+  const [adjustingWeeklyPlan, setAdjustingWeeklyPlan] = useState(false);
+  const [weeklyAdjustmentNote, setWeeklyAdjustmentNote] = useState("");
 
   const recipeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const savedPlans = localStorage.getItem("dinnercall_saved_weekly_plans");
+if (savedPlans) setSavedWeeklyPlans(JSON.parse(savedPlans));
+    
     const saved = localStorage.getItem("dinnercall_saved_recipes");
     if (saved) setSavedRecipes(JSON.parse(saved));
 
@@ -111,6 +118,19 @@ Instructions:
 ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
   };
 
+  const getWeeklyPlanText = () => {
+  if (weeklyPlan.length === 0) return "";
+
+  return `DinnerCall Weekly Plan
+
+${weeklyPlan
+  .map(
+    (meal, index) =>
+      `${["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"][index]}: ${meal}`
+  )
+  .join("\n")}`;
+};
+
   const saveRecipe = () => {
   if (!recipe) return;
 
@@ -120,6 +140,44 @@ ${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
 
   setSaved(true);
   setTimeout(() => setSaved(false), 2000);
+};
+
+const adjustWeeklyPlan = async () => {
+  if (weeklyPlan.length === 0 || !weeklyAdjustmentRequest.trim()) return;
+
+  setAdjustingWeeklyPlan(true);
+  setError("");
+
+  try {
+    const res = await fetch("/api/adjust-weekly-plan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        weeklyPlan,
+        adjustmentRequest: weeklyAdjustmentRequest,
+        ingredients,
+        servings,
+        mealPreference,
+        avoidIngredients,
+        maxTime,
+        kidFriendly,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error || "Something went wrong.");
+    } else {
+      setWeeklyPlan(data.meals);
+      setWeeklyAdjustmentRequest("");
+      setWeeklyAdjustmentNote("Updated your weekly plan.");
+    }
+  } catch {
+    setError("Something went wrong.");
+  } finally {
+    setAdjustingWeeklyPlan(false);
+  }
 };
 
 const deleteSavedRecipe = (indexToDelete: number) => {
@@ -185,6 +243,14 @@ const deleteSavedRecipe = (indexToDelete: number) => {
     setAdjustmentRequest("");
   };
 
+  const copyWeeklyPlan = async () => {
+  if (weeklyPlan.length === 0) return;
+
+  await navigator.clipboard.writeText(getWeeklyPlanText());
+  setCopied(true);
+  setTimeout(() => setCopied(false), 2000);
+};
+
   const adjustRecipe = async () => {
     if (!recipe || !adjustmentRequest.trim()) return;
 
@@ -223,6 +289,20 @@ const deleteSavedRecipe = (indexToDelete: number) => {
     }
   };
 
+  const saveWeeklyPlan = () => {
+  if (weeklyPlan.length === 0) return;
+
+  const updated = [weeklyPlan, ...savedWeeklyPlans];
+  setSavedWeeklyPlans(updated);
+  localStorage.setItem(
+    "dinnercall_saved_weekly_plans",
+    JSON.stringify(updated)
+  );
+
+  setSaved(true);
+  setTimeout(() => setSaved(false), 2000);
+};
+
   const planMyWeek = async () => {
     if (!ingredients.trim()) {
       setError(
@@ -234,6 +314,7 @@ const deleteSavedRecipe = (indexToDelete: number) => {
     setPlanningWeek(true);
     setError("");
     setWeeklyPlan([]);
+    setWeeklyAdjustmentNote("");
     setRecipe(null);
 
     try {
@@ -569,6 +650,22 @@ const deleteSavedRecipe = (indexToDelete: number) => {
               5 Dinner Ideas
             </h2>
 
+{weeklyAdjustmentNote && (
+  <div
+    style={{
+      background: "#F7F6F1",
+      border: "1px solid #D9DED6",
+      borderRadius: "14px",
+      padding: "12px 16px",
+      marginBottom: "20px",
+      color: "#52616B",
+      fontWeight: "bold",
+    }}
+  >
+    {weeklyAdjustmentNote}
+  </div>
+)}
+
             <ul style={listStyle}>
               {weeklyPlan.map((meal, index) => (
                 <li key={index} style={{ marginBottom: "14px" }}>
@@ -579,7 +676,59 @@ const deleteSavedRecipe = (indexToDelete: number) => {
                 </li>
               ))}
             </ul>
-          </section>
+          
+        <div
+
+  style={{
+    display: "flex",
+    gap: "12px",
+    flexWrap: "wrap",
+    marginTop: "24px",
+  }}
+>
+  <button onClick={copyWeeklyPlan} style={whiteButtonStyle}>
+    {copied ? "Copied!" : "Copy Weekly Plan"}
+  </button>
+
+  <button onClick={saveWeeklyPlan} style={greenButtonStyle}>
+    {saved ? "Saved!" : "Save Weekly Plan"}
+  </button>
+</div>
+
+<div
+  style={{
+    background: "#F7F6F1",
+    border: "1px solid #ECEEE9",
+    borderRadius: "16px",
+    padding: "20px",
+    marginTop: "28px",
+  }}
+>
+  <h3 style={{ marginTop: 0 }}>Want to tweak the week?</h3>
+
+  <p style={{ color: "#52616B", lineHeight: "1.6" }}>
+    Tell DinnerCall what to change, like &quot;replace Thursday&quot; or
+    &quot;I don&apos;t want quinoa.&quot;
+  </p>
+
+  <input
+    type="text"
+    placeholder="Replace Thursday. I don't want quinoa..."
+    value={weeklyAdjustmentRequest}
+    onChange={(e) => setWeeklyAdjustmentRequest(e.target.value)}
+    style={inputStyle}
+  />
+
+  <button
+    onClick={adjustWeeklyPlan}
+    disabled={adjustingWeeklyPlan}
+    style={{ ...greenButtonStyle, marginTop: "12px" }}
+  >
+    {adjustingWeeklyPlan ? "Adjusting..." : "Adjust Weekly Plan"}
+  </button>
+</div>
+
+</section>
         )}
 
         {recipe && (
