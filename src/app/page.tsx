@@ -45,6 +45,8 @@ export default function Home() {
   const [weeklyAdjustmentRequest, setWeeklyAdjustmentRequest] = useState("");
   const [adjustingWeeklyPlan, setAdjustingWeeklyPlan] = useState(false);
   const [weeklyAdjustmentNote, setWeeklyAdjustmentNote] = useState("");
+  const [groceryList, setGroceryList] = useState<any>(null);
+  const [isGeneratingGroceryList, setIsGeneratingGroceryList] = useState(false);
 
   const recipeRef = useRef<HTMLDivElement>(null);
 
@@ -179,6 +181,35 @@ const adjustWeeklyPlan = async () => {
     setAdjustingWeeklyPlan(false);
   }
 };
+
+async function generateGroceryList() {
+  if (!weeklyPlan) return;
+
+  setIsGeneratingGroceryList(true);
+
+  try {
+    const response = await fetch("/api/grocery-list", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ weeklyPlan }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to generate grocery list.");
+    }
+
+    setGroceryList(data.groceryList);
+  } catch (error) {
+    console.error(error);
+    alert("Sorry, DinnerCall could not generate the grocery list.");
+  } finally {
+    setIsGeneratingGroceryList(false);
+  }
+}
 
 const deleteSavedRecipe = (indexToDelete: number) => {
   const updated = savedRecipes.filter(
@@ -719,17 +750,80 @@ const deleteSavedRecipe = (indexToDelete: number) => {
     style={inputStyle}
   />
 
+ <div
+  style={{
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+    marginTop: "12px",
+  }}
+>
   <button
     onClick={adjustWeeklyPlan}
     disabled={adjustingWeeklyPlan}
-    style={{ ...greenButtonStyle, marginTop: "12px" }}
+    style={greenButtonStyle}
   >
     {adjustingWeeklyPlan ? "Adjusting..." : "Adjust Weekly Plan"}
   </button>
+
+  <button
+    onClick={generateGroceryList}
+    disabled={isGeneratingGroceryList}
+    style={greenButtonStyle}
+  >
+    {isGeneratingGroceryList
+      ? "Building your grocery list..."
+      : "🛒 Build Grocery List"}
+  </button>
+</div>  
 </div>
 
 </section>
         )}
+
+ {groceryList && (
+  <div className="grocery-card">
+    <h2>Grocery List</h2>
+    <p className="grocery-subtitle">
+      Smartly combined from your weekly plan.
+    </p>
+
+    {groceryList.categories
+      .filter((category: any) => category.items.length > 0)
+      .map((category: any, categoryIndex: number) => (
+        <div key={category.name} className="grocery-category">
+          <h3>{category.name}</h3>
+
+          {category.items.map((item: any, itemIndex: number) => (
+            <label
+              key={`${item.name}-${itemIndex}`}
+              className="grocery-item"
+            >
+              <input
+                type="checkbox"
+                checked={item.checked}
+                onChange={() => {
+                  const updated = { ...groceryList };
+
+                  updated.categories[categoryIndex].items[
+                    itemIndex
+                  ].checked =
+                    !updated.categories[categoryIndex].items[itemIndex]
+                      .checked;
+
+                  setGroceryList(updated);
+                }}
+              />
+
+              <span>
+                <strong>{item.quantity}</strong> {item.name}
+              </span>
+            </label>
+          ))}
+        </div>
+      ))}
+  </div>
+)}
 
         {recipe && (
           <section style={recipeCardStyle}>
