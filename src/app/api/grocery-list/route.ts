@@ -6,7 +6,7 @@ const openai = new OpenAI({
 
 export async function POST(req: Request) {
   try {
-    const { weeklyPlan } = await req.json();
+    const { weeklyPlan, excludePantryStaples } = await req.json();
 
     if (!weeklyPlan) {
       return Response.json(
@@ -28,6 +28,11 @@ Requirements:
 
 Categories should include:
 Protein, Produce, Dairy, Pantry, Frozen, Spices & Seasonings, Other.
+
+Pantry Staples Setting:
+${excludePantryStaples
+  ? "Exclude common pantry staples such as salt, black pepper, olive oil, basic cooking oil, flour, sugar, garlic powder, onion powder, paprika, Italian seasoning, dried herbs, red pepper flakes, and common spice blends unless they are a major ingredient."
+  : "Include pantry staples and seasonings if they are needed for the recipes."}
 
 Weekly Plan:
 ${weeklyPlan}

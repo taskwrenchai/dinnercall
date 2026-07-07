@@ -47,6 +47,9 @@ export default function Home() {
   const [weeklyAdjustmentNote, setWeeklyAdjustmentNote] = useState("");
   const [groceryList, setGroceryList] = useState<any>(null);
   const [isGeneratingGroceryList, setIsGeneratingGroceryList] = useState(false);
+  const [hasLoadedSavedData, setHasLoadedSavedData] = useState(false);
+  const [groceryCopied, setGroceryCopied] = useState(false);
+  const [excludePantryStaples, setExcludePantryStaples] = useState(true);
 
   const recipeRef = useRef<HTMLDivElement>(null);
 
@@ -68,23 +71,70 @@ if (savedPlans) setSavedWeeklyPlans(JSON.parse(savedPlans));
       if (preferences.avoidIngredients) setAvoidIngredients(preferences.avoidIngredients);
       if (typeof preferences.kidFriendly === "boolean") {
         setKidFriendly(preferences.kidFriendly);
+        if (typeof preferences.excludePantryStaples === "boolean") {
+    setExcludePantryStaples(preferences.excludePantryStaples);
+}
       }
     }
   }, []);
-
+  
   useEffect(() => {
     const preferences = {
-      servings,
-      mealType,
-      mealPreference,
-      maxTime,
-      avoidIngredients,
-      kidFriendly,
-    };
-
+    servings,
+    mealType,
+    mealPreference,
+    maxTime,
+    avoidIngredients,
+    kidFriendly,
+    excludePantryStaples,
+};
+    
     localStorage.setItem("dinnercall_preferences", JSON.stringify(preferences));
-  }, [servings, mealType, mealPreference, maxTime, avoidIngredients, kidFriendly]);
+  }, [servings,
+  mealType,
+  mealPreference,
+  maxTime,
+  avoidIngredients,
+  kidFriendly,
+  excludePantryStaples,]);
 
+useEffect(() => {
+  const savedWeeklyPlan = localStorage.getItem("dinnercall-current-weekly-plan");
+  const savedGroceryList = localStorage.getItem("dinnercall-current-grocery-list");
+
+  if (savedWeeklyPlan) {
+    setWeeklyPlan(JSON.parse(savedWeeklyPlan));
+  }
+
+  if (savedGroceryList) {
+    setGroceryList(JSON.parse(savedGroceryList));
+  }
+
+  setHasLoadedSavedData(true);
+}, []);
+
+useEffect(() => {
+  if (!hasLoadedSavedData) return;
+
+  if (weeklyPlan && weeklyPlan.length > 0) {
+    localStorage.setItem(
+      "dinnercall-current-weekly-plan",
+      JSON.stringify(weeklyPlan)
+    );
+  }
+}, [weeklyPlan, hasLoadedSavedData]);
+
+useEffect(() => {
+  if (!hasLoadedSavedData) return;
+
+  if (groceryList) {
+    localStorage.setItem(
+      "dinnercall-current-grocery-list",
+      JSON.stringify(groceryList)
+    );
+  }
+}, [groceryList, hasLoadedSavedData]);
+  
   useEffect(() => {
     if (!loading) {
       setLoadingMessageIndex(0);
@@ -171,7 +221,13 @@ const adjustWeeklyPlan = async () => {
     if (!res.ok) {
       setError(data.error || "Something went wrong.");
     } else {
+
       setWeeklyPlan(data.meals);
+
+localStorage.setItem(
+  "dinnercall-current-weekly-plan",
+  JSON.stringify(data.meals || [])
+);
       setWeeklyAdjustmentRequest("");
       setWeeklyAdjustmentNote("Updated your weekly plan.");
     }
@@ -193,7 +249,7 @@ async function generateGroceryList() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ weeklyPlan }),
+      body: JSON.stringify({ weeklyPlan, excludePantryStaples, }),
     });
 
     const data = await response.json();
@@ -210,6 +266,43 @@ async function generateGroceryList() {
     setIsGeneratingGroceryList(false);
   }
 }
+
+const copyGroceryList = async () => {
+  if (!groceryList) return;
+
+  const groceryText = groceryList.categories
+    .filter((category: any) => category.items.length > 0)
+    .map((category: any) => {
+      const items = category.items
+        .map((item: any) => {
+          const checkmark = item.checked ? "☑" : "☐";
+          return `${checkmark} ${item.quantity} ${item.name}`;
+        })
+        .join("\n");
+
+      return `${category.name.toUpperCase()}\n${items}`;
+    })
+    .join("\n\n");
+
+  await navigator.clipboard.writeText(groceryText);
+
+  setGroceryCopied(true);
+  setTimeout(() => setGroceryCopied(false), 2000);
+};
+
+const clearWeek = () => {
+  const confirmed = window.confirm(
+    "Clear your current weekly plan and grocery list?"
+  );
+
+  if (!confirmed) return;
+
+  setWeeklyPlan([]);
+  setGroceryList(null);
+
+  localStorage.removeItem("dinnercall-current-weekly-plan");
+  localStorage.removeItem("dinnercall-current-grocery-list");
+};
 
 const deleteSavedRecipe = (indexToDelete: number) => {
   const updated = savedRecipes.filter(
@@ -368,6 +461,12 @@ const deleteSavedRecipe = (indexToDelete: number) => {
         setError(data.error || "Something went wrong.");
       } else {
         setWeeklyPlan(data.meals || []);
+
+localStorage.setItem(
+  "dinnercall-current-weekly-plan",
+  JSON.stringify(data.meals || [])
+);
+
       }
     } catch {
       setError("Something went wrong.");
@@ -708,21 +807,42 @@ const deleteSavedRecipe = (indexToDelete: number) => {
               ))}
             </ul>
           
-        <div
-
+ <div
   style={{
     display: "flex",
     gap: "12px",
     flexWrap: "wrap",
-    marginTop: "24px",
+    marginTop: "20px",
+    marginBottom: "24px",
   }}
 >
-  <button onClick={copyWeeklyPlan} style={whiteButtonStyle}>
-    {copied ? "Copied!" : "Copy Weekly Plan"}
+  <button
+    onClick={copyWeeklyPlan}
+    style={{
+  ...greenButtonStyle,
+  backgroundColor: "#ffffff",
+  color: "#1f2937",
+  border: "2px solid #d1d5db",
+}}
+  >
+    Copy Weekly Plan
   </button>
 
-  <button onClick={saveWeeklyPlan} style={greenButtonStyle}>
-    {saved ? "Saved!" : "Save Weekly Plan"}
+  <button
+    onClick={saveWeeklyPlan}
+    style={greenButtonStyle}
+  >
+    Save Weekly Plan
+  </button>
+
+  <button
+    onClick={clearWeek}
+    style={{
+      ...greenButtonStyle,
+      backgroundColor: "#8b3a2b",
+    }}
+  >
+    🗑️ Clear Week
   </button>
 </div>
 
@@ -766,6 +886,37 @@ const deleteSavedRecipe = (indexToDelete: number) => {
     {adjustingWeeklyPlan ? "Adjusting..." : "Adjust Weekly Plan"}
   </button>
 
+<div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    marginTop: "16px",
+    marginBottom: "16px",
+  }}
+>
+  <input
+    type="checkbox"
+    checked={excludePantryStaples}
+    onChange={(e) => setExcludePantryStaples(e.target.checked)}
+  />
+
+  <div>
+    <div style={{ fontWeight: 600 }}>
+      Exclude Pantry Staples
+    </div>
+
+    <div
+      style={{
+        fontSize: "0.9rem",
+        color: "#666",
+      }}
+    >
+      Assumes you already have salt, pepper, oil and common seasonings.
+    </div>
+  </div>
+</div>
+
   <button
     onClick={generateGroceryList}
     disabled={isGeneratingGroceryList}
@@ -788,6 +939,14 @@ const deleteSavedRecipe = (indexToDelete: number) => {
       Smartly combined from your weekly plan.
     </p>
 
+<button
+  onClick={copyGroceryList}
+  style={{ ...greenButtonStyle, marginBottom: "20px" }}
+>
+  {groceryCopied ? "Copied!" : "📋 Copy Grocery List"}
+</button>
+
+
     {groceryList.categories
       .filter((category: any) => category.items.length > 0)
       .map((category: any, categoryIndex: number) => (
@@ -797,7 +956,7 @@ const deleteSavedRecipe = (indexToDelete: number) => {
           {category.items.map((item: any, itemIndex: number) => (
             <label
               key={`${item.name}-${itemIndex}`}
-              className="grocery-item"
+              className={`grocery-item ${item.checked ? "checked" : ""}`}
             >
               <input
                 type="checkbox"

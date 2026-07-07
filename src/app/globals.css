@@ -26,6 +26,7 @@ body {
 }
 .grocery-card {
   margin-top: 2rem;
+  margin-bottom: 56px;
   padding: 1.5rem;
   border-radius: 18px;
   background: #fffaf3;
@@ -70,3 +71,17 @@ body {
   line-height: 1.4;
 }
 
+.grocery-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 20px 0 28px;
+}
+
+.grocery-item.checked {
+  opacity: 0.55;
+}
+
+.grocery-item.checked span {
+  text-decoration: line-through;
+}
