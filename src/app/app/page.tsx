@@ -571,26 +571,26 @@ const deleteSavedRecipe = (indexToDelete: number) => {
         background: "#FFFFFF",
         color: "#1F2933",
         fontFamily: "Arial, sans-serif",
-        padding: "24px 16px",
+        padding: "12px 16px",
       }}
     >
-      <section style={{ maxWidth: "900px", margin: "0 auto" }}>
+      <section style={{ maxWidth: "720px", margin: "0 auto 28px" }}>
         <div style={{ marginBottom: "32px" }}>
           <img
-            src="/dinnercall-logo-v2.png"
+            src="/New logo 7.16.26.png"
             alt="DinnerCall Logo"
-            style={{ width: "340px", marginBottom: "48px", maxWidth: "100%" }}
+            style={{ width: "320px", marginTop: "8px", marginBottom: "20px", maxWidth: "100%" }}
           />
 
           <h1
             style={{
-              fontSize: "clamp(36px, 7vw, 56px)",
+              fontSize: "clamp(48px)",
               lineHeight: "1.05",
-              margin: "0 0 16px",
+              margin: "0 0 12px",
               fontWeight: 400,
             }}
           >
-            What&apos;s for dinner?
+            Dinner. Decided.
           </h1>
 
           <p
