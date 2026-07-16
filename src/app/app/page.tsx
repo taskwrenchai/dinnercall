@@ -39,6 +39,8 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [planningWeek, setPlanningWeek] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [weeklyPlanCopied, setWeeklyPlanCopied] = useState(false);
+  const [weeklyPlanSaved, setWeeklyPlanSaved] = useState(false);
   const [adjustmentRequest, setAdjustmentRequest] = useState("");
   const [adjusting, setAdjusting] = useState(false);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
@@ -269,7 +271,7 @@ async function generateGroceryList() {
 
     setGroceryList(data.groceryList);
 
-setTimeout(() => {
+    setTimeout(() => {
   groceryListRef.current?.scrollIntoView({
     behavior: "smooth",
     block: "start",
@@ -387,9 +389,13 @@ const deleteSavedRecipe = (indexToDelete: number) => {
   const copyWeeklyPlan = async () => {
   if (weeklyPlan.length === 0) return;
 
-  await navigator.clipboard.writeText(getWeeklyPlanText());
-  setCopied(true);
-  setTimeout(() => setCopied(false), 2000);
+  try {
+    await navigator.clipboard.writeText(getWeeklyPlanText());
+    setWeeklyPlanCopied(true);
+    setTimeout(() => setWeeklyPlanCopied(false), 2000);
+  } catch {
+    setError("DinnerCall could not copy the weekly plan.");
+  }
 };
 
   const adjustRecipe = async () => {
@@ -440,8 +446,8 @@ const deleteSavedRecipe = (indexToDelete: number) => {
     JSON.stringify(updated)
   );
 
-  setSaved(true);
-  setTimeout(() => setSaved(false), 2000);
+  setWeeklyPlanSaved(true);
+  setTimeout(() => setWeeklyPlanSaved(false), 2000);
 };
 
   const planMyWeek = async () => {
@@ -858,14 +864,14 @@ const deleteSavedRecipe = (indexToDelete: number) => {
   border: "2px solid #d1d5db",
 }}
   >
-    Copy Weekly Plan
+  {weeklyPlanCopied ? "Copied!" : "Copy Weekly Plan"}
   </button>
 
   <button
     onClick={saveWeeklyPlan}
     style={greenButtonStyle}
   >
-    Save Weekly Plan
+  {weeklyPlanSaved ? "Saved!" : "Save Weekly Plan"}
   </button>
 
   <button

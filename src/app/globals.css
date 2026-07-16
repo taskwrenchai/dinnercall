@@ -30,8 +30,8 @@ body {
   padding: 1.5rem;
   border-radius: 18px;
   background: #ffffff;
-  border: 1px solid #f1d9b5;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border: 1px solid #eef0ea;
+box-shadow: 0 10px 30px rgba(0,0,0,.04);
 }
 
 .grocery-card h2 {
