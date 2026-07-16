@@ -52,6 +52,8 @@ export default function Home() {
   const [excludePantryStaples, setExcludePantryStaples] = useState(true);
 
   const recipeRef = useRef<HTMLDivElement>(null);
+  const weeklyPlanRef = useRef<HTMLDivElement>(null);
+  const groceryListRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const savedPlans = localStorage.getItem("dinnercall_saved_weekly_plans");
@@ -266,6 +268,14 @@ async function generateGroceryList() {
     }
 
     setGroceryList(data.groceryList);
+
+setTimeout(() => {
+  groceryListRef.current?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+}, 300);
+
   } catch (error) {
     console.error(error);
     alert("Sorry, DinnerCall could not generate the grocery list.");
@@ -466,15 +476,23 @@ const deleteSavedRecipe = (indexToDelete: number) => {
 
       if (!res.ok) {
         setError(data.error || "Something went wrong.");
+
       } else {
-        setWeeklyPlan(data.meals || []);
+  setWeeklyPlan(data.meals || []);
 
-localStorage.setItem(
-  "dinnercall-current-weekly-plan",
-  JSON.stringify(data.meals || [])
-);
+  localStorage.setItem(
+    "dinnercall-current-weekly-plan",
+    JSON.stringify(data.meals || [])
+  );
 
-      }
+  setTimeout(() => {
+    weeklyPlanRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, 300);
+}
+
     } catch {
       setError("Something went wrong.");
     } finally {
@@ -777,6 +795,10 @@ localStorage.setItem(
 
         {weeklyPlan.length > 0 && (
           <section style={cardStyle}>
+             <div
+      ref={weeklyPlanRef}
+      style={{ scrollMarginTop: "24px" }}
+    />
             <p style={eyebrowStyle}>This Week&apos;s DinnerCall</p>
 
             <h2
@@ -945,6 +967,11 @@ localStorage.setItem(
 
  {groceryList && (
   <div className="grocery-card">
+     <div
+      ref={groceryListRef}
+      style={{ scrollMarginTop: "24px" }}
+    />
+
     <h2>Grocery List</h2>
     <p className="grocery-subtitle">
       Smartly combined from your weekly plan.
