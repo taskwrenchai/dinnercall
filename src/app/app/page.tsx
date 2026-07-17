@@ -582,26 +582,19 @@ const deleteSavedRecipe = (indexToDelete: number) => {
             style={{ width: "320px", marginTop: "8px", marginBottom: "20px", maxWidth: "100%" }}
           />
 
-          <h1
-            style={{
-              fontSize: "clamp(48px)",
-              lineHeight: "1.05",
-              margin: "0 0 12px",
-              fontWeight: 400,
-            }}
-          >
-            Dinner. Decided.
-          </h1>
-
-          <p
-            style={{
-              fontSize: "clamp(18px, 3vw, 24px)",
-              color: "#52616B",
-              margin: 0,
-            }}
-          >
-            Tell us what you have, and we&apos;ll decide dinner.
-          </p>
+        
+         <h1
+  style={{
+    fontSize: "clamp(16px, 2vw, 26px)",
+    lineHeight: "1.25",
+    margin: "0 0 24px",
+    fontWeight: 550,
+    color: "#52616B",
+    maxWidth: "640px",
+  }}
+>
+    Tell us what's in your kitchen. We&apos;ll decide dinner.
+</h1>
         </div>
 
         {error && (
