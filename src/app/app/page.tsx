@@ -23,6 +23,7 @@ const loadingMessages = [
 
 export default function Home() {
   const [ingredients, setIngredients] = useState("");
+  const [weeklyIngredients, setWeeklyIngredients] = useState("");
   const [avoidIngredients, setAvoidIngredients] = useState("");
   const [servings, setServings] = useState("4");
   const [mealType, setMealType] = useState("Dinner");
@@ -36,6 +37,7 @@ export default function Home() {
   const [savedWeeklyPlans, setSavedWeeklyPlans] = useState<string[][]>([]);
 
   const [error, setError] = useState("");
+  const [weeklyPlanError, setWeeklyPlanError] = useState("");
   const [loading, setLoading] = useState(false);
   const [planningWeek, setPlanningWeek] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -56,6 +58,21 @@ export default function Home() {
   const recipeRef = useRef<HTMLDivElement>(null);
   const weeklyPlanRef = useRef<HTMLDivElement>(null);
   const groceryListRef = useRef<HTMLDivElement>(null);
+  const ingredientsRef = useRef<HTMLTextAreaElement>(null);
+
+useEffect(() => {
+  const textarea = ingredientsRef.current;
+
+  if (!textarea) return;
+
+  textarea.style.height = "auto";
+
+  const newHeight = Math.min(textarea.scrollHeight, 128);
+
+  textarea.style.height = `${Math.max(newHeight, 60)}px`;
+  textarea.style.overflowY =
+    textarea.scrollHeight > 128 ? "auto" : "hidden";
+}, [ingredients]);
 
   useEffect(() => {
     const savedPlans = localStorage.getItem("dinnercall_saved_weekly_plans");
@@ -451,13 +468,14 @@ const deleteSavedRecipe = (indexToDelete: number) => {
 };
 
   const planMyWeek = async () => {
-    if (!ingredients.trim()) {
-      setError(
-        "🔔 My dinner bell isn't ringing yet. Tell me what ingredients you have first."
-      );
-      return;
-    }
+   if (!weeklyIngredients.trim()) {
+  setWeeklyPlanError(
+    "Enter at least one protein or main ingredient for this week."
+  );
+  return;
+}
 
+    setWeeklyPlanError("");
     setPlanningWeek(true);
     setError("");
     setWeeklyPlan([]);
@@ -469,7 +487,7 @@ const deleteSavedRecipe = (indexToDelete: number) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ingredients,
+          ingredients: weeklyIngredients,
           servings,
           mealPreference,
           avoidIngredients,
@@ -617,13 +635,22 @@ const deleteSavedRecipe = (indexToDelete: number) => {
         <div style={cardStyle}>
           <label style={labelStyle}>Ingredients on hand</label>
 
-          <input
-            type="text"
-            placeholder="chicken, rice, broccoli..."
-            value={ingredients}
-            onChange={(e) => setIngredients(e.target.value)}
-            style={inputStyle}
-          />
+          <textarea
+  ref={ingredientsRef}
+  placeholder="chicken, rice, broccoli..."
+  value={ingredients}
+  onChange={(e) => setIngredients(e.target.value)}
+  rows={1}
+  style={{
+    ...inputStyle,
+    minHeight: "52px",
+    maxHeight: "128px",
+    resize: "none",
+    overflowY: "hidden",
+    fontFamily: "inherit",
+    lineHeight: "1.5",
+  }}
+/>
 <p
   style={{
     margin: "12px 0 8px",
@@ -758,7 +785,7 @@ const deleteSavedRecipe = (indexToDelete: number) => {
     style={{
       margin: "0 0 6px",
       fontWeight: "bold",
-      color: "#6B8F71",
+      color: "#2DA11B",
       letterSpacing: "0.06em",
       textTransform: "uppercase",
       fontSize: "13px",
@@ -780,8 +807,41 @@ const deleteSavedRecipe = (indexToDelete: number) => {
     maxWidth: "760px",
   }}
 >
-  For best results, enter your proteins or main ingredients above. DinnerCall will use them to create five dinners for the week.
+  Add the proteins or main ingredients you especially want included.
+  DinnerCall will build five varied dinners around them.
 </p>
+
+<label style={labelStyle}>
+  Ingredients for this week
+</label>
+
+<textarea
+  placeholder="tri tip, chicken breasts, ground beef, pork chops..."
+  value={weeklyIngredients}
+  onChange={(e) => setWeeklyIngredients(e.target.value)}
+  rows={2}
+  style={{
+    ...inputStyle,
+    minHeight: "72px",
+    resize: "vertical",
+    fontFamily: "inherit",
+    lineHeight: "1.5",
+    marginBottom: "18px",
+  }}
+/>
+
+{weeklyPlanError && (
+  <p
+    style={{
+      margin: "-6px 0 16px",
+      color: "#B42318",
+      fontSize: "14px",
+      fontWeight: 600,
+    }}
+  >
+    {weeklyPlanError}
+  </p>
+)}
 
 <button
   onClick={planMyWeek}
@@ -852,7 +912,7 @@ const deleteSavedRecipe = (indexToDelete: number) => {
     onClick={copyWeeklyPlan}
     style={{
   ...greenButtonStyle,
-  backgroundColor: "#ffffff",
+  background: "#ffffff",
   color: "#1f2937",
   border: "2px solid #d1d5db",
 }}
@@ -871,7 +931,7 @@ const deleteSavedRecipe = (indexToDelete: number) => {
     onClick={clearWeek}
     style={{
       ...greenButtonStyle,
-      backgroundColor: "#8b3a2b",
+      background: "#8b3a2b",
     }}
   >
     🗑️ Clear Week
@@ -1309,7 +1369,7 @@ const mainButtonStyle = {
   padding: "16px 24px",
   borderRadius: "12px",
   border: "none",
-  background: "#6B8F71",
+  background: "#2DA11B",
   color: "white",
   fontSize: "16px",
   fontWeight: "bold",
@@ -1322,7 +1382,7 @@ const greenButtonStyle = {
   padding: "14px 22px",
   borderRadius: "12px",
   border: "none",
-  background: "#6B8F71",
+  background: "#2DA11B",
   color: "white",
   fontSize: "16px",
   fontWeight: "bold",
@@ -1353,7 +1413,7 @@ const chipStyle = {
 const eyebrowStyle = {
   textTransform: "uppercase" as const,
   letterSpacing: "0.08em",
-  color: "#6B8F71",
+  color: "#2DA11B",
   fontWeight: "bold",
   fontSize: "14px",
 };
