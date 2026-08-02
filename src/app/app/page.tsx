@@ -40,9 +40,11 @@ export default function Home() {
   const [weeklyPlanError, setWeeklyPlanError] = useState("");
   const [loading, setLoading] = useState(false);
   const [planningWeek, setPlanningWeek] = useState(false);
+  const [cookingMeal, setCookingMeal] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [weeklyPlanCopied, setWeeklyPlanCopied] = useState(false);
   const [weeklyPlanSaved, setWeeklyPlanSaved] = useState(false);
+  const [showWeeklySettingsInfo, setShowWeeklySettingsInfo] = useState(false);
   const [adjustmentRequest, setAdjustmentRequest] = useState("");
   const [adjusting, setAdjusting] = useState(false);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
@@ -233,14 +235,14 @@ const adjustWeeklyPlan = async () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        weeklyPlan,
-        adjustmentRequest: weeklyAdjustmentRequest,
-        ingredients,
-        servings,
-        mealPreference,
-        avoidIngredients,
-        maxTime,
-        kidFriendly,
+      weeklyPlan,
+      adjustmentRequest: weeklyAdjustmentRequest,
+      ingredients: weeklyIngredients,
+      servings,
+      mealPreference,
+      avoidIngredients,
+      maxTime,
+      kidFriendly,
       }),
     });
 
@@ -523,6 +525,51 @@ const deleteSavedRecipe = (indexToDelete: number) => {
       setPlanningWeek(false);
     }
   };
+
+  const cookThis = async (meal: string) => {
+  setCookingMeal(meal);
+  setError("");
+  setRecipe(null);
+
+  try {
+    const res = await fetch("/api/weekly-recipe", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        meal,
+        weeklyIngredients,
+        servings,
+        mealPreference,
+        avoidIngredients,
+        maxTime,
+        kidFriendly,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error || "Something went wrong.");
+      return;
+    }
+
+    setRecipe(data.recipe);
+
+    setTimeout(() => {
+      recipeRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 300);
+
+  } catch {
+    setError("Something went wrong.");
+  } finally {
+  setCookingMeal(null);
+}
+};
 
   const handleClick = async () => {
     if (!ingredients.trim()) {
@@ -811,6 +858,42 @@ const deleteSavedRecipe = (indexToDelete: number) => {
   DinnerCall will build five varied dinners around them.
 </p>
 
+<button
+  type="button"
+  onClick={() => setShowWeeklySettingsInfo((current) => !current)}
+  style={{
+    border: "none",
+    background: "#F7F6F1",
+    color: "#52616B",
+    padding: "8px 12px",
+    borderRadius: "999px",
+    fontSize: "14px",
+    fontWeight: 600,
+    cursor: "pointer",
+    marginBottom: "18px",
+  }}
+>
+  ℹ️ What settings are used?
+</button>
+
+{showWeeklySettingsInfo && (
+  <div
+    style={{
+      background: "#F7F6F1",
+      border: "1px solid #D9DED6",
+      borderRadius: "14px",
+      padding: "14px 16px",
+      marginBottom: "18px",
+      color: "#52616B",
+      fontSize: "14px",
+      lineHeight: "1.5",
+    }}
+  >
+    Weekly plans use your servings, meal preference, cooking time,
+    dislikes/allergies, and Kid Friendly settings above
+  </div>
+)}
+
 <label style={labelStyle}>
   Ingredients for this week
 </label>
@@ -888,16 +971,79 @@ const deleteSavedRecipe = (indexToDelete: number) => {
   </div>
 )}
 
-            <ul style={listStyle}>
-              {weeklyPlan.map((meal, index) => (
-                <li key={index} style={{ marginBottom: "14px" }}>
-                  <strong>
-                    {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"][index]}:
-                  </strong>{" "}
-                  {meal}
-                </li>
-              ))}
-            </ul>
+ <div
+  style={{
+    display: "flex",
+    flexDirection: "column",
+    flex: 1,
+    gap: "10px",
+  }}
+>
+  {weeklyPlan.map((meal, index) => (
+    <div
+        key={index}
+        onClick={() => {
+  if (!cookingMeal) cookThis(meal);
+}}
+
+onMouseEnter={(e) => {
+  e.currentTarget.style.border = "1px solid #2DA11B";
+  e.currentTarget.style.boxShadow = "0 6px 16px rgba(45, 161, 27, 0.10)";
+}}
+onMouseLeave={(e) => {
+  e.currentTarget.style.border = "1px solid #ECEEE9";
+  e.currentTarget.style.boxShadow = "none";
+}}
+
+        style={{
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "stretch",
+        justifyContent: "space-between",
+        gap: "16px",
+        flexWrap: "wrap",
+        padding: "16px",
+        background: "#F7F6F1",
+        border: "1px solid #ECEEE9",
+        borderRadius: "14px",
+        transition: "border-color 150ms ease, box-shadow 150ms ease",
+      }}
+    >
+      <div
+        style={{
+          flex: "1 1 280px",
+          lineHeight: "1.6",
+          fontSize: "17px",
+        }}
+      >
+        <strong>
+          {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"][index]}:
+        </strong>{" "}
+        {meal}
+      </div>
+
+      <div
+  style={{
+    alignSelf: "flex-end",
+    color: "#2EAF1C",
+    fontSize: "13px",
+    fontWeight: 600,
+    cursor: "pointer",
+    userSelect: "none",
+    paddingBottom: "6px",
+    opacity: cookingMeal !== null && cookingMeal !== meal ? 0.5 : 1,
+    textDecoration: cookingMeal === meal ? "none" : "underline",
+textUnderlineOffset: "3px",
+  }}
+>
+  {cookingMeal === meal
+  ? "Cooking up your recipe..."
+  : "Cook This"}
+</div>
+
+    </div>
+  ))}
+</div>
           
  <div
   style={{

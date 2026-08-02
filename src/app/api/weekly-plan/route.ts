@@ -18,7 +18,10 @@ export async function POST(req: Request) {
 
     if (!ingredients || !ingredients.trim()) {
       return NextResponse.json(
-        { error: "Please enter some ingredients first." },
+        {
+          error:
+            "Tell DinnerCall which proteins or main ingredients you want included this week.",
+        },
         { status: 400 }
       );
     }
@@ -26,49 +29,69 @@ export async function POST(req: Request) {
     const response = await client.responses.create({
       model: "gpt-4.1-mini",
       input: `
-You are DinnerCall, a practical home meal-planning assistant.
+You are DinnerCall, a practical home cooking assistant.
 
-Create a simple 5-night dinner plan using these ingredients when helpful:
+Create a varied 5-night dinner plan built around these ingredients:
+
 ${ingredients}
+
+User preferences:
 
 Servings: ${servings || "4"}
 Meal preference: ${mealPreference || "No Preference"}
-Max cooking time: ${maxTime || "No Preference"}
-Avoid these ingredients/allergies: ${avoidIngredients || "None"}
+Maximum cooking time: ${maxTime || "No Preference"}
+Avoid these ingredients or allergens: ${avoidIngredients || "None"}
 Kid friendly: ${kidFriendly ? "Yes" : "No"}
 
 Create 5 different dinner ideas for Monday through Friday.
 
-Use U.S. kitchen language.
-Keep meals realistic for busy families.
-Avoid repeating the exact same meal.
-Reuse ingredients intelligently when possible.
-Do not write full recipes yet. Meal names only.
+Use the supplied ingredients as the primary ingredients to build the week around,
+but do not force every meal to use every supplied ingredient.
 
-Return ONLY valid JSON in this exact shape:
+Create a week that feels like a real family's meal plan.
+
+Requirements:
+
+- Vary the proteins, vegetables, starches, and cooking styles.
+- Do not repeat the same side dish more than twice.
+- Avoid meals that are only small variations of each other.
+- If the user supplies only one protein, use it in no more than two meals unless necessary.
+- If helpful, introduce common grocery items to create variety.
+- Balance convenience with variety.
+- Keep meals realistic for busy families.
+- Respect the user's meal preference, time limit, dislikes, and allergies.
+- Never include an ingredient listed under dislikes or allergies.
+- Use U.S. kitchen language.
+- Do not write full recipes.
+- Return meal names only.
+- Return exactly five meals.
+- Return only valid JSON.
+
+Return JSON in exactly this shape:
 
 {
   "meals": [
-    "Meal idea 1",
-    "Meal idea 2",
-    "Meal idea 3",
-    "Meal idea 4",
-    "Meal idea 5"
+    "Monday meal",
+    "Tuesday meal",
+    "Wednesday meal",
+    "Thursday meal",
+    "Friday meal"
   ]
 }
 
-No markdown. No extra text.
+No markdown.
+No additional text outside the JSON.
       `,
     });
 
-    const weeklyPlan = JSON.parse(response.output_text);
+    const data = JSON.parse(response.output_text);
 
-    return NextResponse.json(weeklyPlan);
+    return NextResponse.json(data);
   } catch (error) {
-    console.error(error);
+    console.error("Weekly plan error:", error);
 
     return NextResponse.json(
-      { error: "Something went wrong planning your week." },
+      { error: "DinnerCall could not create your weekly plan." },
       { status: 500 }
     );
   }
