@@ -5,13 +5,23 @@ import { useEffect, useRef, useState } from "react";
 type Recipe = {
   name: string;
   why: string;
+  prepTime?: string;
+  cookTime?: string;
+  totalTime?: string;
   calories: string;
   protein: string;
   carbs: string;
   fat: string;
+  nutritionVerified?: boolean;
   adjustmentNote?: string;
   ingredients: string[];
-  steps: string[];
+  steps: (
+  | string
+  | {
+      title: string;
+      instruction: string;
+    }
+)[];
 };
 
 const loadingMessages = [
@@ -23,6 +33,8 @@ const loadingMessages = [
 
 export default function Home() {
   const [ingredients, setIngredients] = useState("");
+  const [dinnerMoods, setDinnerMoods] = useState<string[]>([]);
+  const [dinnerIntent, setDinnerIntent] = useState("");
   const [weeklyIngredients, setWeeklyIngredients] = useState("");
   const [avoidIngredients, setAvoidIngredients] = useState("");
   const [servings, setServings] = useState("4");
@@ -216,9 +228,23 @@ ${weeklyPlan
   const saveRecipe = () => {
   if (!recipe) return;
 
-  const updated = [recipe, ...savedRecipes];
-  setSavedRecipes(updated);
-  localStorage.setItem("dinnercall_saved_recipes", JSON.stringify(updated));
+  const alreadySaved = savedRecipes.some(
+  (savedRecipe) => savedRecipe.name === recipe.name
+);
+
+if (alreadySaved) {
+  setSaved(true);
+  setTimeout(() => setSaved(false), 2000);
+  return;
+}
+
+const updated = [recipe, ...savedRecipes];
+
+setSavedRecipes(updated);
+localStorage.setItem(
+  "dinnercall_saved_recipes",
+  JSON.stringify(updated)
+);
 
   setSaved(true);
   setTimeout(() => setSaved(false), 2000);
@@ -399,7 +425,6 @@ const deleteSavedRecipe = (indexToDelete: number) => {
 
   const clearRecipe = () => {
     setRecipe(null);
-    setWeeklyPlan([]);
     setError("");
     setCopied(false);
     setAdjustmentRequest("");
@@ -591,6 +616,8 @@ const deleteSavedRecipe = (indexToDelete: number) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ingredients,
+          dinnerMoods,
+          dinnerIntent,
           servings,
           mealType,
           mealPreference,
@@ -698,6 +725,7 @@ const deleteSavedRecipe = (indexToDelete: number) => {
     lineHeight: "1.5",
   }}
 />
+
 <p
   style={{
     margin: "12px 0 8px",
@@ -733,6 +761,96 @@ const deleteSavedRecipe = (indexToDelete: number) => {
   ))}
 </div>
 
+<div style={{ marginTop: "20px" }}>
+  <label style={labelStyle}>What sounds good tonight?</label>
+
+  <p
+    style={{
+      margin: "6px 0 12px",
+      color: "#6b7280",
+      fontSize: "0.9rem",
+    }}
+  >
+    Optional — give DinnerCall a little direction.
+  </p>
+
+  <div
+    style={{
+      display: "flex",
+      flexWrap: "wrap",
+      gap: "8px",
+    }}
+  >
+    {[
+      "Comforting",
+      "Rich & Savory",
+      "Spicy",
+      "Light & Fresh",
+      "Healthy",
+      "Surprise Me",
+    ].map((mood) => {
+      const selected = dinnerMoods.includes(mood);
+
+      return (
+        <button
+          key={mood}
+          type="button"
+          onClick={() =>
+            setDinnerMoods((current) =>
+              current.includes(mood)
+                ? current.filter((item) => item !== mood)
+                : [...current, mood]
+            )
+          }
+          style={{
+            padding: "10px 14px",
+            borderRadius: "999px",
+            border: selected
+              ? "2px solid #2da11b"
+              : "1px solid #d1d5db",
+            background: selected ? "#f0faed" : "#ffffff",
+            color: "#374151",
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          {mood}
+        </button>
+      );
+    })}
+  </div>
+</div>
+
+<div style={{ marginTop: "20px" }}>
+  <label style={labelStyle}>Have something in mind?</label>
+
+  <p
+    style={{
+      margin: "6px 0 10px",
+      color: "#6b7280",
+      fontSize: "0.9rem",
+    }}
+  >
+    Optional — tell DinnerCall anything else that sounds good.
+  </p>
+
+  <textarea
+    placeholder="Saucy, baked, a little spicy, no lemon..."
+    value={dinnerIntent}
+    onChange={(e) => setDinnerIntent(e.target.value)}
+    rows={2}
+    style={{
+      ...inputStyle,
+      minHeight: "72px",
+      resize: "vertical",
+      fontFamily: "inherit",
+      lineHeight: "1.5",
+    }}
+  />
+</div>
+
+
+
           <label style={labelStyle}>
           Dislikes / Allergies
          </label>
@@ -746,7 +864,8 @@ const deleteSavedRecipe = (indexToDelete: number) => {
           />
 
           <div
-            style={{
+  className="dinner-options"
+  style={{
               display: "flex",
               gap: "12px",
               flexWrap: "wrap",
@@ -756,7 +875,8 @@ const deleteSavedRecipe = (indexToDelete: number) => {
             <select
               value={mealType}
               onChange={(e) => setMealType(e.target.value)}
-              style={selectStyle}
+              className="dinner-option-select"
+style={selectStyle}
             >
               <option value="Dinner">Dinner</option>
               <option value="Breakfast">Breakfast</option>
@@ -768,7 +888,8 @@ const deleteSavedRecipe = (indexToDelete: number) => {
             <select
               value={servings}
               onChange={(e) => setServings(e.target.value)}
-              style={selectStyle}
+              className="dinner-option-select"
+style={selectStyle}
             >
               <option value="2">2 servings</option>
               <option value="4">4 servings</option>
@@ -778,7 +899,8 @@ const deleteSavedRecipe = (indexToDelete: number) => {
             <select
               value={mealPreference}
               onChange={(e) => setMealPreference(e.target.value)}
-              style={selectStyle}
+              className="dinner-option-select"
+style={selectStyle}
             >
               <option value="No Preference">No Preference</option>
               <option value="Comfort Food">Comfort Food</option>
@@ -795,7 +917,8 @@ const deleteSavedRecipe = (indexToDelete: number) => {
             <select
               value={maxTime}
               onChange={(e) => setMaxTime(e.target.value)}
-              style={selectStyle}
+              className="dinner-option-select"
+style={selectStyle}
             >
               <option value="No Preference">Any Time</option>
               <option value="30 minutes or less">30 min or less</option>
@@ -1100,13 +1223,19 @@ textUnderlineOffset: "3px",
     &quot;I don&apos;t want quinoa.&quot;
   </p>
 
-  <input
-    type="text"
-    placeholder="Replace Thursday. I don't want quinoa..."
-    value={weeklyAdjustmentRequest}
-    onChange={(e) => setWeeklyAdjustmentRequest(e.target.value)}
-    style={inputStyle}
-  />
+  <textarea
+  placeholder="Replace Thursday. I don't want quinoa..."
+  value={weeklyAdjustmentRequest}
+  onChange={(e) => setWeeklyAdjustmentRequest(e.target.value)}
+  rows={2}
+  style={{
+    ...inputStyle,
+    resize: "vertical",
+    minHeight: "80px",
+    lineHeight: "1.5",
+    fontFamily: "inherit",
+  }}
+/>
 
  <div
   style={{
@@ -1266,7 +1395,7 @@ textUnderlineOffset: "3px",
                 display: "flex",
                 gap: "10px",
                 flexWrap: "wrap",
-                marginBottom: "28px",
+                marginBottom: "8px",
               }}
             >
               <span style={badgeStyle}>🔥 {recipe.calories} calories</span>
@@ -1274,6 +1403,18 @@ textUnderlineOffset: "3px",
               <span style={badgeStyle}>🍚 {recipe.carbs} carbs</span>
               <span style={badgeStyle}>🥑 {recipe.fat} fat</span>
             </div>
+
+            <p
+  style={{
+    marginTop: 0,
+    marginBottom: "28px",
+    fontSize: "13px",
+    color: "#6B7280",
+  }}
+>
+  Nutrition shown per serving.
+{recipe.nutritionVerified && " Calculated using USDA FoodData Central."}
+</p>
 
             {recipe.adjustmentNote && (
               <div
@@ -1305,6 +1446,37 @@ textUnderlineOffset: "3px",
               <p style={paragraphStyle}>{recipe.why}</p>
             </div>
 
+{(recipe.prepTime || recipe.cookTime || recipe.totalTime) && (
+  <div
+    style={{
+      display: "flex",
+      gap: "24px",
+      flexWrap: "wrap",
+      marginBottom: "28px",
+      fontSize: "15px",
+      color: "#52616B",
+    }}
+  >
+    {recipe.prepTime && (
+      <span>
+        <strong>Prep:</strong> {recipe.prepTime}
+      </span>
+    )}
+
+    {recipe.cookTime && (
+      <span>
+        <strong>Cook:</strong> {recipe.cookTime}
+      </span>
+    )}
+
+    {recipe.totalTime && (
+      <span>
+        <strong>Total:</strong> {recipe.totalTime}
+      </span>
+    )}
+  </div>
+)}
+
             <h3 style={sectionTitleStyle}>Ingredients</h3>
             <ul style={listStyle}>
               {recipe.ingredients.map((item, index) => (
@@ -1323,18 +1495,32 @@ textUnderlineOffset: "3px",
     paddingLeft: "28px",
   }}
 >
-  {recipe.steps.map((step, index) => (
+  {recipe.steps.map((step, index) => {
+  const isLegacyStep = typeof step === "string";
+
+  return (
     <li
       key={index}
       style={{
-        marginBottom: "18px",
-        paddingLeft: "6px",
+        marginBottom: "22px",
+        paddingLeft: "8px",
         display: "list-item",
+        lineHeight: "1.7",
       }}
     >
-      {step}
+      {!isLegacyStep && (
+        <span style={{ fontWeight: 600 }}>
+          {step.title}
+        </span>
+      )}
+
+      <div style={{ marginTop: isLegacyStep ? 0 : "4px" }}>
+        {isLegacyStep ? step : step.instruction}
+      </div>
     </li>
-  ))}
+  );
+})}
+
 </ol>
 
             <div
@@ -1375,13 +1561,13 @@ textUnderlineOffset: "3px",
             </div>
 
             <div
-              style={{
-                display: "flex",
-                gap: "12px",
-                flexWrap: "wrap",
-                marginTop: "30px",
-              }}
-            >
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gap: "12px",
+    marginTop: "30px",
+  }}
+>
              <button onClick={saveRecipe} style={greenButtonStyle}>
   {saved ? "Saved!" : "Save Recipe"}
 </button>
@@ -1398,7 +1584,13 @@ textUnderlineOffset: "3px",
                 Share Recipe
               </button>
 
-              <button onClick={clearRecipe} style={whiteButtonStyle}>
+              <button
+  onClick={clearRecipe}
+  style={{
+    ...whiteButtonStyle,
+    gridColumn: "1 / -1",
+  }}
+>
                 Clear Recipe
               </button>
             </div>
@@ -1441,16 +1633,18 @@ textUnderlineOffset: "3px",
             {savedRecipe.name}
           </strong>
 
-          <p
-            style={{
-              color: "#52616B",
-              marginBottom: 0,
-              marginTop: "6px",
-              lineHeight: "1.6",
-            }}
-          >
-            {savedRecipe.why}
-          </p>
+<span
+  style={{
+    color: "#2da11b",
+    fontWeight: 700,
+    fontSize: "15px",
+    display: "block",
+    marginTop: "8px",
+  }}
+>
+  View Recipe →
+</span>
+
         </button>
 
         <button
@@ -1533,6 +1727,12 @@ const greenButtonStyle = {
   fontSize: "16px",
   fontWeight: "bold",
   cursor: "pointer",
+  width: "100%",
+minHeight: "64px",
+display: "flex",
+alignItems: "center",
+justifyContent: "center",
+textAlign: "center" as const,
 };
 
 const whiteButtonStyle = {
@@ -1544,6 +1744,12 @@ const whiteButtonStyle = {
   fontSize: "16px",
   fontWeight: "bold",
   cursor: "pointer",
+  width: "100%",
+minHeight: "64px",
+display: "flex",
+alignItems: "center",
+justifyContent: "center",
+textAlign: "center" as const,
 };
 
 const chipStyle = {
@@ -1577,7 +1783,7 @@ const badgeStyle = {
 
 const sectionTitleStyle = {
   fontSize: "24px",
-  marginTop: "32px",
+  marginTop: "0px",
   marginBottom: "12px",
 };
 

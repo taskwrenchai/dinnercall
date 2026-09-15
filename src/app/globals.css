@@ -85,3 +85,10 @@ box-shadow: 0 10px 30px rgba(0,0,0,.04);
 .grocery-item.checked span {
   text-decoration: line-through;
 }
+
+@media (max-width: 420px) {
+  .dinner-options .dinner-option-select {
+    width: calc(50% - 6px);
+    min-width: 0;
+  }
+}
