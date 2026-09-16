@@ -851,7 +851,7 @@ const deleteSavedRecipe = (indexToDelete: number) => {
 
 
 
-          <label style={labelStyle}>
+          <label style={{ ...labelStyle, marginTop: "24px" }}>
           Dislikes / Allergies
          </label>
 
