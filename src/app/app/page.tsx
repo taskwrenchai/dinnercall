@@ -863,13 +863,23 @@ const deleteSavedRecipe = (indexToDelete: number) => {
             style={inputStyle}
           />
 
-          <div
-  className="dinner-options"
+          <h3
+  style={{
+    margin: "24px 0 12px",
+    fontSize: "1.15rem",
+    fontWeight: 700,
+  }}
+>
+  Dinner details
+</h3>
+          <div          
+
+className="dinner-options"
   style={{
               display: "flex",
               gap: "12px",
               flexWrap: "wrap",
-              marginTop: "18px",
+              marginTop: "0px",
             }}
           >
             <select
