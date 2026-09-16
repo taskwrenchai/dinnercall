@@ -1610,11 +1610,11 @@ textUnderlineOffset: "3px",
 {savedRecipes.length > 0 && (
   <section style={cardStyle}>
     <h2 style={{ marginTop: 0, marginBottom: "8px", fontSize: "32px" }}>
-      Saved Recipes
+      My DinnerCalls
     </h2>
 
     <p style={{ color: "#52616B", marginBottom: "24px" }}>
-      Your favorite DinnerCalls.
+      Recipes you've saved for another night.
     </p>
 
     {savedRecipes.map((savedRecipe, index) => (

@@ -162,6 +162,10 @@ For ingredients:
 - List every ingredient needed to make the recipe.
 - Do not include optional ingredients, optional garnishes, or "if desired" ingredients.
 - Every ingredient listed should be treated as part of the recipe.
+- Use realistic, balanced ingredient quantities for the selected number of servings.
+- Consider the role each ingredient plays in the finished meal. When a calorie-dense ingredient such as meat, cheese, oil, cream, butter, or sauce is one component of a multi-component dish, use only the amount reasonably needed for that dish rather than automatically assigning a full standalone portion per person.
+- Ingredients the user lists as being on hand are available ingredients, not quantities that must all be used. Do not unnecessarily increase portions simply to use all of an ingredient.
+- Do not make a recipe low-calorie by default. Prioritize sensible portions and the user's selected dinner preferences, moods, and directions.
 - Use clear, natural U.S. kitchen measurements and include helpful preparation notes such as chopped, minced, peeled, or cut into pieces.
 
 For ingredientData:
