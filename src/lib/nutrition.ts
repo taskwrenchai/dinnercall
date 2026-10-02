@@ -10,6 +10,12 @@ type FoodNutrient = {
   nutrientName?: string;
   value?: number;
   unitName?: string;
+  amount?: number;
+  nutrient?: {
+    id?: number;
+    name?: string;
+    unitName?: string;
+  };
 };
 
 type UsdaFood = {
@@ -68,14 +74,41 @@ function findNutrient(
   possibleNames: string[]
 ): number {
   const match = nutrients.find((nutrient) => {
-    const name = nutrient.nutrientName?.toLowerCase() ?? "";
+    const name = (
+      nutrient.nutrientName ??
+      nutrient.nutrient?.name ??
+      ""
+    ).toLowerCase();
 
-    return possibleNames.some((possibleName) =>
-      name.includes(possibleName.toLowerCase())
-    );
+    const hasValue =
+  typeof nutrient.value === "number" ||
+  typeof nutrient.amount === "number";
+
+return (
+  hasValue &&
+  possibleNames.some((possibleName) =>
+    name.includes(possibleName.toLowerCase())
+  )
+);
   });
 
-  return match?.value ?? 0;
+  return match?.value ?? match?.amount ?? 0;
+}
+
+function hasUsableMacros(nutrients: FoodNutrient[]): boolean {
+  const protein = findNutrient(nutrients, ["protein"]);
+
+  const carbs = findNutrient(nutrients, [
+    "carbohydrate, by difference",
+    "carbohydrate",
+  ]);
+
+  const fat = findNutrient(nutrients, [
+    "total lipid (fat)",
+    "total fat",
+  ]);
+
+  return protein > 0 || carbs > 0 || fat > 0;
 }
 
 function roundToOneDecimal(value: number): number {
@@ -274,6 +307,35 @@ async function searchUsdaFoods(
   return data.foods ?? [];
 }
 
+async function getUsdaFoodById(
+  fdcId: number,
+  apiKey: string
+): Promise<UsdaFood> {
+  const response = await fetch(
+    `https://api.nal.usda.gov/fdc/v1/food/${fdcId}?api_key=${apiKey}`,
+    {
+      method: "GET",
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+
+    console.error(
+      "USDA FoodData Central detail error:",
+      response.status,
+      errorText
+    );
+
+    throw new Error(
+      `USDA food detail request failed with status ${response.status}.`
+    );
+  }
+
+  return (await response.json()) as UsdaFood;
+}
+
 export async function calculateIngredientNutrition(
   ingredient: IngredientData
 ): Promise<IngredientNutritionResult> {
@@ -346,9 +408,38 @@ if (!bestMatch || bestMatch.score < 2) {
   );
 }
 
-const food = bestMatch.food;
+let food = bestMatch.food;
+let fullFood = food;
+let nutrients: FoodNutrient[] = [];
 
-  const nutrients = food.foodNutrients ?? [];
+for (const candidate of scoredFoods) {
+  if (candidate.score < 2) {
+    break;
+  }
+
+  const candidateFood = candidate.food;
+
+  const candidateFullFood =
+    candidateFood.fdcId != null
+      ? await getUsdaFoodById(candidateFood.fdcId, apiKey)
+      : candidateFood;
+
+  const candidateNutrients =
+    candidateFullFood.foodNutrients ?? [];
+
+  if (hasUsableMacros(candidateNutrients)) {
+    food = candidateFood;
+    fullFood = candidateFullFood;
+    nutrients = candidateNutrients;
+    break;
+  }
+}
+
+if (!hasUsableMacros(nutrients)) {
+  throw new Error(
+    `No USDA match with usable nutrition data found for ${ingredient.name}.`
+  );
+}
 
   const proteinPer100g = findNutrient(nutrients, ["protein"]);
 
@@ -362,13 +453,26 @@ const food = bestMatch.food;
     "total fat",
   ]);
 
-  const listedCaloriesPer100g =
-  nutrients.find((nutrient) => {
-    const name = nutrient.nutrientName?.toLowerCase() ?? "";
-    const unit = nutrient.unitName?.toLowerCase() ?? "";
+  const calorieNutrient = nutrients.find((nutrient) => {
+  const name = (
+    nutrient.nutrientName ??
+    nutrient.nutrient?.name ??
+    ""
+  ).toLowerCase();
 
-    return name.includes("energy") && unit === "kcal";
-  })?.value ?? 0;
+  const unit = (
+    nutrient.unitName ??
+    nutrient.nutrient?.unitName ??
+    ""
+  ).toLowerCase();
+
+  return name.includes("energy") && unit === "kcal";
+});
+
+const listedCaloriesPer100g =
+  calorieNutrient?.value ??
+  calorieNutrient?.amount ??
+  0;
 
   const calculatedCaloriesPer100g =
     proteinPer100g * 4 +
@@ -385,10 +489,16 @@ const food = bestMatch.food;
   return {
     ingredient,
     matchedFood: {
-      fdcId: food.fdcId ?? null,
-      description: food.description ?? "Unknown USDA food",
-      dataType: food.dataType ?? "Unknown",
-    },
+  fdcId: fullFood.fdcId ?? food.fdcId ?? null,
+  description:
+    fullFood.description ??
+    food.description ??
+    "Unknown USDA food",
+  dataType:
+    fullFood.dataType ??
+    food.dataType ??
+    "Unknown",
+},
     nutrition: {
       calories: Math.round(caloriesPer100g * multiplier),
       protein: roundToOneDecimal(proteinPer100g * multiplier),

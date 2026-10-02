@@ -88,7 +88,7 @@ Use:
 Return ONLY valid JSON in this exact shape:
 {
   "name": "Recipe name",
-  "why": "Short explanation of why this works",
+  "why": "1-2 natural sentences describing why the flavors, textures, and ingredients work well together as a meal. Write like a food editor speaking to a home cook. Focus on the food itself. Never mention the user, their request, preferences, prompt, recipe name, dinner name, requirements, or that the recipe matches anything.",
   "servings": 4,
 "prepTime": "10 minutes",
 "cookTime": "30 minutes",
@@ -217,8 +217,6 @@ const nutrition = await calculateRecipeNutrition(
   recipe.ingredientData,
   recipe.servings
 );
-
-console.log("NUTRITION MATCHES:", nutrition.matchedIngredients);
 
 recipe.calories = String(nutrition.perServing.calories);
 recipe.protein = `${nutrition.perServing.protein}g`;

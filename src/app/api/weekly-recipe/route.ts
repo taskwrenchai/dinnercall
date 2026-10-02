@@ -36,6 +36,8 @@ ${meal}
 
 The recipe should closely match the meal name and include all major components named in it.
 
+The weekly meal name is authoritative. Preserve the intended dish, protein type, cut, preparation style, and major components implied by the meal name. Do not substitute a different form of a protein merely because it appears in the weekly ingredients. For example, "Beef Fajitas" should use sliced fajita-appropriate beef, not ground beef; "Beef and Broccoli Stir-Fry" should use sliced beef, not ground beef. Weekly ingredients are secondary and should only be incorporated when they make culinary sense for the named meal.
+
 Weekly ingredients the user wants incorporated when appropriate:
 ${weeklyIngredients || "None specified"}
 
@@ -67,6 +69,7 @@ Requirements:
 - Return each step as an object with a short action-oriented title and a detailed instruction.
 - Keep step titles brief and easy to scan.
 - Include specific cooking times, temperatures, heat levels, and doneness cues when relevant.
+- Write the "why" explanation as natural, appetizing dinner guidance. Explain what makes the flavors, ingredients, or cooking style work well together. Do not mention the user, their request, the prompt, the meal name, requirements, constraints, or that the recipe "matches" anything.
 
 Return JSON in exactly this shape:
 

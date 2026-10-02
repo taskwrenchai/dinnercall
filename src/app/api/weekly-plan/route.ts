@@ -52,12 +52,14 @@ Create a week that feels like a real family's meal plan.
 
 Requirements:
 
-- Vary the proteins, vegetables, starches, and cooking styles.
-- Do not repeat the same side dish more than twice.
+- Evaluate all five meals together as a complete week before returning the plan.
+- Create meaningful variety across proteins, vegetables, starches, side dishes, flavor profiles, and cooking styles.
+- Avoid repeating the same prominent vegetable, starch, or side dish on consecutive days.
+- Prefer not to repeat the same prominent vegetable, starch, or side dish anywhere in the five-day plan when reasonable alternatives are available.
 - Avoid meals that are only small variations of each other.
 - If the user supplies only one protein, use it in no more than two meals unless necessary.
 - If helpful, introduce common grocery items to create variety.
-- Balance convenience with variety.
+- Balance convenience and ingredient reuse with enough variety that the week does not feel repetitive.
 - Keep meals realistic for busy families.
 - Respect the user's meal preference, time limit, dislikes, and allergies.
 - Never include an ingredient listed under dislikes or allergies.

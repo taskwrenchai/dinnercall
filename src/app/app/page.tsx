@@ -209,7 +209,13 @@ Ingredients:
 ${recipe.ingredients.map((item) => `- ${item}`).join("\n")}
 
 Instructions:
-${recipe.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`;
+${recipe.steps
+  .map((step, index) =>
+    typeof step === "string"
+      ? `${index + 1}. ${step}`
+      : `${index + 1}. ${step.title}\n${step.instruction}`
+  )
+  .join("\n\n")}`;
   };
 
   const getWeeklyPlanText = () => {
@@ -286,6 +292,13 @@ localStorage.setItem(
 );
       setWeeklyAdjustmentRequest("");
       setWeeklyAdjustmentNote("Updated your weekly plan.");
+
+      setTimeout(() => {
+  weeklyPlanRef.current?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+}, 300);
     }
   } catch {
     setError("Something went wrong.");

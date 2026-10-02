@@ -23,6 +23,10 @@ Requirements:
 - Consolidate quantities when reasonable.
 - Group items by category.
 - Use shopper-friendly wording.
+- Infer all essential ingredients needed to make each meal in the weekly plan, even when every ingredient is not explicitly stated in the meal name.
+- Do not omit essential meal components. For example, include tortillas for fajitas or tacos, buns for burgers, pasta for pasta dishes, rice when the meal specifies rice, and other necessary bases, wrappers, breads, or primary components.
+- Before returning the grocery list, mentally check each meal in the weekly plan and make sure a shopper would have the essential ingredients needed to prepare that meal.
+- The "Exclude Pantry Staples" setting applies only to common staples such as salt, pepper, basic cooking oils, flour, sugar, and common seasonings. Do not exclude essential meal components such as tortillas, buns, pasta, rice, bread, or similar items.
 - Return ONLY valid JSON.
 - Do not include markdown.
 
