@@ -137,6 +137,8 @@ function scoreFoodMatch(
     "minced",
     "sliced",
     "whole",
+    "peeled",
+    "deveined",
   ]);
 
   const ingredientWords = ingredientName
@@ -371,6 +373,17 @@ let scoredFoods = foods
   }))
   .sort((a, b) => b.score - a.score);
 
+  if (ingredient.name.toLowerCase().includes("shrimp")) {
+  console.log(
+    "SHRIMP SEARCH RESULTS:",
+    scoredFoods.slice(0, 10).map((item) => ({
+      description: item.food.description,
+      dataType: item.food.dataType,
+      score: item.score,
+    }))
+  );
+}
+
 let bestMatch = scoredFoods[0];
 
 if (!bestMatch || bestMatch.score < 2) {
@@ -485,6 +498,22 @@ const listedCaloriesPer100g =
       : calculatedCaloriesPer100g;
 
   const multiplier = ingredient.grams / 100;
+
+  if (ingredient.name.toLowerCase().includes("shrimp")) {
+  console.log("SHRIMP USDA CHECK:", {
+    ingredient,
+    matchedFood: {
+      fdcId: fullFood.fdcId ?? food.fdcId ?? null,
+      description: fullFood.description ?? food.description ?? "Unknown",
+      dataType: fullFood.dataType ?? food.dataType ?? "Unknown",
+    },
+    proteinPer100g,
+    carbsPer100g,
+    fatPer100g,
+    listedCaloriesPer100g,
+    caloriesPer100g,
+  });
+}
 
   return {
     ingredient,

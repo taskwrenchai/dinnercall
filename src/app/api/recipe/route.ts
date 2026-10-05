@@ -21,17 +21,17 @@ const {
   mealType,
 } = await req.json();
 
-    if (!ingredients || !ingredients.trim()) {
-      return NextResponse.json(
-        { error: "Please enter some ingredients." },
-        { status: 400 }
-      );
-    }
    
     const response = await client.responses.create({
       model: "gpt-4.1-mini",
       input: `
-Create one simple but genuinely GOOD ${mealType || "Dinner"} recipe using these ingredients: ${ingredients}.
+Create one simple but genuinely GOOD ${mealType || "Dinner"} recipe.
+
+${
+  ingredients?.trim()
+    ? `The user has these ingredients on hand and would like the recipe built around them: ${ingredients}.`
+    : `The user did not provide ingredients. Choose a practical, appealing recipe using common grocery-store ingredients. You are deciding the meal for them.`
+}
 
 The recipe must make ${servings || 4} servings.
 
@@ -211,7 +211,7 @@ Use U.S. kitchen measurements whenever possible. Prefer cups, tablespoons, teasp
 
     const recipe = JSON.parse(response.output_text);
 
-console.log("INGREDIENT DATA:", recipe.ingredientData);   
+console.log("INGREDIENT DATA:", recipe.ingredientData);
 
 const nutrition = await calculateRecipeNutrition(
   recipe.ingredientData,
