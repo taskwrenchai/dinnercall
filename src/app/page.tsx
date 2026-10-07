@@ -5,13 +5,24 @@ export default function HomePage() {
         style={{
           maxWidth: "1000px",
           margin: "0 auto",
-          padding: "80px 24px",
+          padding: "60px 24px 32px",
           textAlign: "center",
         }}
       >
+                <img
+  src="/New Logo 7.16.26.png"
+  alt="DinnerCall — Dinner. Decided."
+  style={{
+    display: "block",
+    width: "100%",
+    maxWidth: "340px",
+    height: "auto",
+    margin: "0 auto 28px",
+  }}
+/>
         <h1
           style={{
-            fontSize: "3rem",
+            fontSize: "2.5rem",
             lineHeight: 1.1,
             marginBottom: "20px",
           }}
@@ -35,7 +46,7 @@ export default function HomePage() {
           href="/app"
           style={{
             display: "inline-block",
-            background: "#2f6b3f",
+            background: "#2da11b",
             color: "white",
             padding: "14px 24px",
             borderRadius: "999px",
@@ -54,7 +65,7 @@ export default function HomePage() {
           padding: "0 24px 80px",
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: "20px",
+          gap: "12px",
         }}
       >
         {[
@@ -69,7 +80,7 @@ export default function HomePage() {
               background: "white",
               border: "1px solid #eef0ea",
               borderRadius: "18px",
-              padding: "24px",
+              padding: "18px 20px",
               boxShadow: "0 10px 30px rgba(0,0,0,0.04)",
             }}
           >
@@ -89,7 +100,7 @@ export default function HomePage() {
           borderTop: "1px solid #ead8bd",
         }}
       >
-        DinnerCall Beta
+        © 2026 DinnerCall · Dinner. Decided.
       </footer>
     </main>
   );

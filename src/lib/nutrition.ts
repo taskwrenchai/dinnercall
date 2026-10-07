@@ -373,16 +373,6 @@ let scoredFoods = foods
   }))
   .sort((a, b) => b.score - a.score);
 
-  if (ingredient.name.toLowerCase().includes("shrimp")) {
-  console.log(
-    "SHRIMP SEARCH RESULTS:",
-    scoredFoods.slice(0, 10).map((item) => ({
-      description: item.food.description,
-      dataType: item.food.dataType,
-      score: item.score,
-    }))
-  );
-}
 
 let bestMatch = scoredFoods[0];
 
