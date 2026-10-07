@@ -677,7 +677,7 @@ const deleteSavedRecipe = (indexToDelete: number) => {
       <section style={{ maxWidth: "720px", margin: "0 auto 28px" }}>
         <div style={{ marginBottom: "32px" }}>
           <img
-            src="/New logo 7.16.26.png"
+            src="/dinnercall-logo.png"
             alt="DinnerCall Logo"
             style={{ width: "320px", marginTop: "8px", marginBottom: "20px", maxWidth: "100%" }}
           />

@@ -10,7 +10,7 @@ export default function HomePage() {
         }}
       >
                 <img
-  src="/New Logo 7.16.26.png"
+  src="/dinnercall-logo.png"
   alt="DinnerCall — Dinner. Decided."
   style={{
     display: "block",
