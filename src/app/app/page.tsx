@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 type Recipe = {
   name: string;
@@ -32,6 +34,22 @@ const loadingMessages = [
 ];
 
 export default function Home() {
+
+const router = useRouter();
+
+const handleSignOut = async () => {
+  const supabase = createClient();
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    alert("Unable to sign out. Please try again.");
+    return;
+  }
+
+  router.replace("/login");
+  router.refresh();
+};
+
   const [ingredients, setIngredients] = useState("");
   const [dinnerMoods, setDinnerMoods] = useState<string[]>([]);
   const [dinnerIntent, setDinnerIntent] = useState("");
@@ -47,6 +65,17 @@ export default function Home() {
   const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
   const [weeklyPlan, setWeeklyPlan] = useState<string[]>([]);
   const [savedWeeklyPlans, setSavedWeeklyPlans] = useState<string[][]>([]);
+  const [showSavedWeeklyPlans, setShowSavedWeeklyPlans] = useState(false);
+  useEffect(() => {
+  if (showSavedWeeklyPlans) {
+    document
+      .getElementById("my-weekly-plans")
+      ?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+  }
+}, [showSavedWeeklyPlans]);
 
   const [error, setError] = useState("");
   const [weeklyPlanError, setWeeklyPlanError] = useState("");
@@ -89,11 +118,8 @@ useEffect(() => {
 }, [ingredients]);
 
   useEffect(() => {
-    const savedPlans = localStorage.getItem("dinnercall_saved_weekly_plans");
-if (savedPlans) setSavedWeeklyPlans(JSON.parse(savedPlans));
-    
-    const saved = localStorage.getItem("dinnercall_saved_recipes");
-    if (saved) setSavedRecipes(JSON.parse(saved));
+
+  
 
     const savedPreferences = localStorage.getItem("dinnercall_preferences");
     if (savedPreferences) {
@@ -231,26 +257,79 @@ ${weeklyPlan
   .join("\n")}`;
 };
 
-  const saveRecipe = () => {
+useEffect(() => {
+  const loadSavedRecipes = async () => {
+    const supabase = createClient();
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      setSavedRecipes([]);
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("saved_recipes")
+      .select("recipe_data")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error loading saved recipes:", error);
+      return;
+    }
+
+    setSavedRecipes(
+      (data ?? []).map((row) => row.recipe_data as Recipe)
+    );
+  };
+
+  void loadSavedRecipes();
+}, []); 
+
+const saveRecipe = async () => {
   if (!recipe) return;
 
   const alreadySaved = savedRecipes.some(
-  (savedRecipe) => savedRecipe.name === recipe.name
-);
+    (savedRecipe) => savedRecipe.name === recipe.name
+  );
 
-if (alreadySaved) {
-  setSaved(true);
-  setTimeout(() => setSaved(false), 2000);
-  return;
-}
+  if (alreadySaved) {
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+    return;
+  }
 
-const updated = [recipe, ...savedRecipes];
+  const supabase = createClient();
 
-setSavedRecipes(updated);
-localStorage.setItem(
-  "dinnercall_saved_recipes",
-  JSON.stringify(updated)
-);
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    setError("Please sign in to save your recipe.");
+    return;
+  }
+
+  const { error: saveError } = await supabase
+    .from("saved_recipes")
+    .insert({
+      user_id: user.id,
+      recipe_data: recipe,
+    });
+
+  if (saveError) {
+    console.error("Error saving recipe:", saveError);
+    setError("Couldn't save your recipe. Please try again.");
+    return;
+  }
+
+  const updated = [recipe, ...savedRecipes];
+  setSavedRecipes(updated);
 
   setSaved(true);
   setTimeout(() => setSaved(false), 2000);
@@ -381,15 +460,49 @@ const clearWeek = () => {
   localStorage.removeItem("dinnercall-current-grocery-list");
 };
 
-const deleteSavedRecipe = (indexToDelete: number) => {
-  const updated = savedRecipes.filter(
-    (_, index) => index !== indexToDelete
-  );
+const deleteSavedRecipe = async (indexToDelete: number) => {
+  const recipeToDelete = savedRecipes[indexToDelete];
+  if (!recipeToDelete) return;
 
-  setSavedRecipes(updated);
-  localStorage.setItem(
-    "dinnercall_saved_recipes",
-    JSON.stringify(updated)
+  const supabase = createClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    setError("Please sign in to delete a saved recipe.");
+    return;
+  }
+
+  const { data: matchingRecipes, error: lookupError } = await supabase
+    .from("saved_recipes")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("recipe_data->>name", recipeToDelete.name)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  if (lookupError || !matchingRecipes?.length) {
+    setError("Couldn't find the saved recipe. Please try again.");
+    return;
+  }
+
+  const { error: deleteError } = await supabase
+    .from("saved_recipes")
+    .delete()
+    .eq("id", matchingRecipes[0].id)
+    .eq("user_id", user.id);
+
+  if (deleteError) {
+    console.error("Error deleting saved recipe:", deleteError);
+    setError("Couldn't delete your recipe. Please try again.");
+    return;
+  }
+
+  setSavedRecipes((current) =>
+    current.filter((_, index) => index !== indexToDelete)
   );
 };
 
@@ -493,15 +606,130 @@ const deleteSavedRecipe = (indexToDelete: number) => {
     }
   };
 
-  const saveWeeklyPlan = () => {
+
+  useEffect(() => {
+  const loadSavedWeeklyPlans = async () => {
+    const supabase = createClient();
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      setSavedWeeklyPlans([]);
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("saved_weekly_plans")
+      .select("plan_data")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error loading saved weekly plans:", error);
+      return;
+    }
+
+    setSavedWeeklyPlans(
+      (data ?? []).map((row) => row.plan_data)
+    );
+  };
+
+  void loadSavedWeeklyPlans();
+}, []);
+
+const deleteSavedWeeklyPlan = async (indexToDelete: number) => {
+  const planToDelete = savedWeeklyPlans[indexToDelete];
+  if (!planToDelete) return;
+
+  const confirmed = window.confirm(
+    "Are you sure you want to permanently delete this saved weekly plan?"
+  );
+
+  if (!confirmed) return;
+
+  const supabase = createClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    setError("Please sign in to delete a saved weekly plan.");
+    return;
+  }
+
+  const { data: matchingPlans, error: lookupError } = await supabase
+    .from("saved_weekly_plans")
+    .select("id, plan_data")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (lookupError) {
+    console.error("Error finding saved weekly plan:", lookupError);
+    setError("Couldn't find your saved weekly plan.");
+    return;
+  }
+
+  const matchingPlan = matchingPlans?.find(
+    (row) => JSON.stringify(row.plan_data) === JSON.stringify(planToDelete)
+  );
+
+  if (!matchingPlan) {
+    setError("Couldn't find your saved weekly plan.");
+    return;
+  }
+
+  const { error: deleteError } = await supabase
+    .from("saved_weekly_plans")
+    .delete()
+    .eq("id", matchingPlan.id)
+    .eq("user_id", user.id);
+
+  if (deleteError) {
+    console.error("Error deleting saved weekly plan:", deleteError);
+    setError("Couldn't delete your weekly plan. Please try again.");
+    return;
+  }
+
+  setSavedWeeklyPlans((current) =>
+    current.filter((_, index) => index !== indexToDelete)
+  );
+};
+
+  const saveWeeklyPlan = async () => {
   if (weeklyPlan.length === 0) return;
+
+  const supabase = createClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    setError("Please sign in to save your weekly plan.");
+    return;
+  }
+
+  const { error: saveError } = await supabase
+    .from("saved_weekly_plans")
+    .insert({
+      user_id: user.id,
+      plan_data: weeklyPlan,
+    });
+
+  if (saveError) {
+    console.error("Error saving weekly plan:", saveError);
+    setError("Couldn't save your weekly plan. Please try again.");
+    return;
+  }
 
   const updated = [weeklyPlan, ...savedWeeklyPlans];
   setSavedWeeklyPlans(updated);
-  localStorage.setItem(
-    "dinnercall_saved_weekly_plans",
-    JSON.stringify(updated)
-  );
 
   setWeeklyPlanSaved(true);
   setTimeout(() => setWeeklyPlanSaved(false), 2000);
@@ -676,6 +904,23 @@ const deleteSavedRecipe = (indexToDelete: number) => {
     >
       <section style={{ maxWidth: "720px", margin: "0 auto 28px" }}>
         <div style={{ marginBottom: "32px" }}>
+          <div style={{ textAlign: "right", marginBottom: "8px" }}>
+  <button
+    type="button"
+    onClick={handleSignOut}
+    style={{
+      background: "transparent",
+      border: "none",
+      color: "#52616B",
+      cursor: "pointer",
+      fontSize: "14px",
+      fontWeight: 600,
+      padding: "8px",
+    }}
+  >
+    Sign Out
+  </button>
+</div>
           <img
             src="/dinnercall-logo.png"
             alt="DinnerCall Logo"
@@ -1225,6 +1470,8 @@ textUnderlineOffset: "3px",
   </button>
 </div>
 
+
+
 <div
   style={{
     background: "#F7F6F1",
@@ -1316,6 +1563,93 @@ textUnderlineOffset: "3px",
 
 </section>
         )}
+
+{savedWeeklyPlans.length > 0 && (
+  <button
+    onClick={() => {
+  setShowSavedWeeklyPlans(!showSavedWeeklyPlans);
+}}
+    style={{
+      ...greenButtonStyle,
+      background: "#ffffff",
+      color: "#2da11b",
+      border: "1px solid #2da11b",
+      marginTop: "16px",
+    }}
+  >
+    {showSavedWeeklyPlans ? "Hide" : "My"} Weekly Plans ({savedWeeklyPlans.length})
+  </button>
+)}
+
+{savedWeeklyPlans.length > 0 && showSavedWeeklyPlans && (
+  <div
+    id="my-weekly-plans"
+    style={{
+      background: "#ffffff",
+      border: "1px solid #ECEEE9",
+      borderRadius: "16px",
+      padding: "20px",
+      marginTop: "20px",
+    }}
+  >
+    <h3 style={{ marginTop: 0 }}>My Weekly Plans</h3>
+
+    <p style={{ color: "#52616B" }}>
+      Your previously saved dinner plans.
+    </p>
+
+    {savedWeeklyPlans.map((plan, index) => (
+      <div
+        key={index}
+        style={{
+          border: "1px solid #ECEEE9",
+          borderRadius: "12px",
+          padding: "16px",
+          marginTop: "12px",
+        }}
+      >
+        <strong>Weekly Plan {savedWeeklyPlans.length - index}</strong>
+
+        <ul style={{ paddingLeft: "20px", lineHeight: "1.8" }}>
+          {plan.map((meal, mealIndex) => (
+            <li key={mealIndex}>{meal}</li>
+          ))}
+        </ul>
+
+        <button
+          onClick={() => {
+            setWeeklyPlan([...plan]);
+            localStorage.setItem(
+              "dinnercall-current-weekly-plan",
+              JSON.stringify(plan)
+            );
+          }}
+          style={greenButtonStyle}
+        >
+          Load This Plan
+        </button>
+
+<button
+  onClick={() => deleteSavedWeeklyPlan(index)}
+  style={{
+    background: "#ffffff",
+    color: "#c0392b",
+    border: "1px solid #c0392b",
+    borderRadius: "8px",
+    padding: "10px 16px",
+    marginTop: "16px",
+    cursor: "pointer",
+  }}
+>
+  Delete Saved Plan
+</button>
+
+      </div>
+    ))}
+  </div>
+)}
+
+
 
  {groceryList && (
   <div className="grocery-card">
