@@ -408,6 +408,32 @@ async function generateGroceryList() {
 
     setGroceryList(data.groceryList);
 
+    if (data.groceryList) {
+  void (async () => {
+    const supabase = createClient();
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    const { error: trackingError } = await supabase
+      .from("usage_events")
+      .insert({
+        user_id: user.id,
+        event_type: "grocery_list_generated",
+      });
+
+    if (trackingError) {
+      console.warn(
+        "Grocery list usage tracking failed:",
+        trackingError.message
+      );
+    }
+  })();
+}
+
     setTimeout(() => {
   groceryListRef.current?.scrollIntoView({
     behavior: "smooth",
@@ -772,6 +798,29 @@ const deleteSavedWeeklyPlan = async (indexToDelete: number) => {
       } else {
   setWeeklyPlan(data.meals || []);
 
+  if (Array.isArray(data.meals) && data.meals.length > 0) {
+  void (async () => {
+    const supabase = createClient();
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    const { error: trackingError } = await supabase
+      .from("usage_events")
+      .insert({
+        user_id: user.id,
+        event_type: "weekly_plan_generated",
+      });
+
+    if (trackingError) {
+      console.warn("Weekly plan usage tracking failed:", trackingError.message);
+    }
+  })();
+}
+
   localStorage.setItem(
     "dinnercall-current-weekly-plan",
     JSON.stringify(data.meals || [])
@@ -870,6 +919,33 @@ const deleteSavedWeeklyPlan = async (indexToDelete: number) => {
       } else {
         setRecipe(data.recipe);
 
+        // Track successful recipe generation
+void (async () => {
+  const supabase = createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return;
+
+  const { error: trackingError } = await supabase
+    .from("usage_events")
+    .insert({
+      user_id: user.id,
+      event_type: "recipe_generated",
+    });
+
+  if (trackingError) {
+    console.error(
+  "Recipe usage tracking failed:",
+  trackingError.message,
+  trackingError.code,
+  trackingError.details
+);
+  }
+})();
+
         setTimeout(() => {
           recipeRef.current?.scrollIntoView({
             behavior: "smooth",
@@ -903,6 +979,7 @@ const deleteSavedWeeklyPlan = async (indexToDelete: number) => {
       }}
     >
       <section style={{ maxWidth: "720px", margin: "0 auto 28px" }}>
+        
         <div style={{ marginBottom: "32px" }}>
           <div style={{ textAlign: "right", marginBottom: "8px" }}>
   <button
@@ -927,6 +1004,38 @@ const deleteSavedWeeklyPlan = async (indexToDelete: number) => {
             style={{ width: "320px", marginTop: "8px", marginBottom: "20px", maxWidth: "100%" }}
           />
 
+<div
+  style={{
+    background: "#F0FAED",
+    border: "1px solid #B9E3B1",
+    borderRadius: "12px",
+    padding: "16px 20px",
+    marginBottom: "24px",
+    textAlign: "left",
+  }}
+>
+  <div
+    style={{
+      color: "#248A18",
+      fontWeight: 700,
+      fontSize: "16px",
+      marginBottom: "6px",
+    }}
+  >
+    Premium Preview
+  </div>
+  <p
+    style={{
+      margin: 0,
+      color: "#374151",
+      fontSize: "13.5px",
+      lineHeight: "1.6",
+    }}
+  >
+    You&apos;re enjoying complimentary access to all DinnerCall features
+    during our launch preview. No payment required.
+  </p>
+</div>
         
          <h1
   style={{
@@ -1227,9 +1336,34 @@ style={selectStyle}
     Want to plan ahead?
   </p>
 
-  <h3 style={{ margin: "0 0 8px", fontSize: "30px" }}>
-  Plan your week
-</h3>
+  <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: "12px",
+    marginBottom: "8px",
+  }}
+>
+  <h3 style={{ margin: 0, fontSize: "30px" }}>
+    Plan your week
+  </h3>
+
+  <span
+    style={{
+      background: "#F0FAED",
+      color: "#248A18",
+      border: "1px solid #B9E3B1",
+      borderRadius: "999px",
+      padding: "5px 12px",
+      fontSize: "12px",
+      fontWeight: 700,
+      whiteSpace: "nowrap",
+    }}
+  >
+    Premium Preview
+  </span>
+</div>
 
   <p
   style={{
@@ -1658,7 +1792,22 @@ textUnderlineOffset: "3px",
       style={{ scrollMarginTop: "24px" }}
     />
 
-    <h2>Grocery List</h2>
+    <div style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
+  <h2 style={{ margin: 0 }}>Grocery List</h2>
+  <span
+    style={{
+      background: "#EFF9ED",
+      color: "#178A12",
+      border: "1px solid #B6E5AF",
+      borderRadius: "999px",
+      padding: "6px 12px",
+      fontSize: "13px",
+      fontWeight: 700,
+    }}
+  >
+    Premium Preview
+  </span>
+</div>
     <p className="grocery-subtitle">
       Smartly combined from your weekly plan.
     </p>
