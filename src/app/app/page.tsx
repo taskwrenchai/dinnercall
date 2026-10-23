@@ -50,6 +50,53 @@ const handleSignOut = async () => {
   router.refresh();
 };
 
+const submitFeedback = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+
+  if (!feedbackMessage.trim()) return;
+
+  setFeedbackSending(true);
+  setFeedbackStatus("");
+
+  try {
+    const supabase = createClient();
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      setFeedbackStatus("Please sign in to send feedback.");
+      return;
+    }
+
+    const { error: feedbackError } = await supabase
+      .from("feedback")
+      .insert({
+  user_id: user.id,
+  feedback_type: "general",
+  category: feedbackType,
+  message: feedbackMessage.trim(),
+});
+
+    if (feedbackError) {
+      console.error("Feedback submission failed:", feedbackError);
+      setFeedbackStatus("Couldn't send feedback. Please try again.");
+      return;
+    }
+
+    setFeedbackMessage("");
+    setFeedbackType("suggestion");
+    setFeedbackStatus("Thank you! Your feedback has been sent.");
+  } catch (error) {
+    console.error("Feedback submission failed:", error);
+    setFeedbackStatus("Couldn't send feedback. Please try again.");
+  } finally {
+    setFeedbackSending(false);
+  }
+};
+
   const [ingredients, setIngredients] = useState("");
   const [dinnerMoods, setDinnerMoods] = useState<string[]>([]);
   const [dinnerIntent, setDinnerIntent] = useState("");
@@ -78,6 +125,10 @@ const handleSignOut = async () => {
 }, [showSavedWeeklyPlans]);
 
   const [error, setError] = useState("");
+  const [feedbackType, setFeedbackType] = useState("suggestion");
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [feedbackSending, setFeedbackSending] = useState(false);
+  const [feedbackStatus, setFeedbackStatus] = useState("");
   const [weeklyPlanError, setWeeklyPlanError] = useState("");
   const [loading, setLoading] = useState(false);
   const [planningWeek, setPlanningWeek] = useState(false);
@@ -982,6 +1033,29 @@ void (async () => {
         
         <div style={{ marginBottom: "32px" }}>
           <div style={{ textAlign: "right", marginBottom: "8px" }}>
+  
+  <button
+  type="button"
+  onClick={() => {
+    document.getElementById("feedback-form")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }}
+  style={{
+    background: "transparent",
+    border: "none",
+    color: "#2DA11B",
+    cursor: "pointer",
+    fontSize: "14px",
+    fontWeight: 600,
+    padding: "8px",
+    marginRight: "16px",
+  }}
+>
+  Send Feedback
+</button>
+  
   <button
     type="button"
     onClick={handleSignOut}
@@ -2167,6 +2241,85 @@ textUnderlineOffset: "3px",
       ))}
     </section>
   )}
+
+<div id="feedback-form" style={cardStyle}>
+  <h2
+  style={{
+    marginTop: 0,
+    marginBottom: "20px",
+    color: "#2DA11B",
+    fontSize: "26px",
+    fontWeight: 700,
+  }}
+>
+  Help us improve DinnerCall
+</h2>
+
+  <p style={{ color: "#52616B", lineHeight: 1.6 }}>
+    Have an idea, suggestion, or problem to report?
+    We'd love to hear it.
+  </p>
+
+  <form onSubmit={submitFeedback}>
+    <label
+      htmlFor="feedback-type"
+      style={{ display: "block", fontWeight: 600, marginBottom: "8px" }}
+    >
+      What's on your mind?
+    </label>
+
+    <select
+      id="feedback-type"
+      value={feedbackType}
+onChange={(e) => setFeedbackType(e.target.value)}
+      style={{ ...inputStyle, marginBottom: "16px" }}
+    >
+      <option value="suggestion">Suggestion or idea</option>
+      <option value="problem">Report a problem</option>
+      <option value="recipe">Recipe feedback</option>
+      <option value="other">Something else</option>
+    </select>
+
+    <label
+      htmlFor="feedback-message"
+      style={{ display: "block", fontWeight: 600, marginBottom: "8px" }}
+    >
+      Your feedback
+    </label>
+
+    <textarea
+      id="feedback-message"
+      value={feedbackMessage}
+onChange={(e) => setFeedbackMessage(e.target.value)}
+      placeholder="Tell us what you think..."
+      rows={4}
+      required
+      style={{ ...inputStyle, resize: "vertical", marginBottom: "16px" }}
+    />
+
+    <button
+  type="submit"
+  style={greenButtonStyle}
+  disabled={feedbackSending}
+>
+  {feedbackSending ? "Sending..." : "Send Feedback"}
+</button>
+  </form>
+  {feedbackStatus && (
+  <p
+    role="status"
+    style={{
+      marginTop: "16px",
+      color: feedbackStatus.startsWith("Thank you")
+        ? "#2DA11B"
+        : "#B42318",
+      fontWeight: 600,
+    }}
+  >
+    {feedbackStatus}
+  </p>
+)}
+</div>
 
       </section>
     </main>
