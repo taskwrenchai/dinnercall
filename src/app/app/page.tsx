@@ -97,6 +97,54 @@ const submitFeedback = async (e: React.FormEvent<HTMLFormElement>) => {
   }
 };
 
+const handleDeleteAccount = async () => {
+  if (deleteConfirmation !== "DELETE" || !deletePassword) {
+    setDeleteAccountError(
+      "Enter your password and type DELETE to confirm."
+    );
+    return;
+  }
+
+  setDeletingAccount(true);
+  setDeleteAccountError("");
+
+  try {
+    const response = await fetch("/api/delete-account", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        confirmation: deleteConfirmation,
+        password: deletePassword,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      setDeleteAccountError(
+        result.error || "Unable to delete your account."
+      );
+      return;
+    }
+
+    // Clear the local session after successful account deletion.
+    const supabase = createClient();
+    await supabase.auth.signOut();
+
+    // Return the user to the homepage.
+    window.location.replace("/");
+  } catch (error) {
+    console.error("Account deletion request failed:", error);
+    setDeleteAccountError(
+      "Something went wrong. Please try again."
+    );
+  } finally {
+    setDeletingAccount(false);
+  }
+};
+
   const [ingredients, setIngredients] = useState("");
   const [dinnerMoods, setDinnerMoods] = useState<string[]>([]);
   const [dinnerIntent, setDinnerIntent] = useState("");
@@ -129,6 +177,11 @@ const submitFeedback = async (e: React.FormEvent<HTMLFormElement>) => {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [feedbackSending, setFeedbackSending] = useState(false);
   const [feedbackStatus, setFeedbackStatus] = useState("");
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleteAccountError, setDeleteAccountError] = useState("");
   const [weeklyPlanError, setWeeklyPlanError] = useState("");
   const [loading, setLoading] = useState(false);
   const [planningWeek, setPlanningWeek] = useState(false);
@@ -1071,6 +1124,158 @@ void (async () => {
   >
     Sign Out
   </button>
+
+<button
+  type="button"
+  onClick={() => {
+    setDeleteAccountError("");
+    setDeletePassword("");
+    setDeleteConfirmation("");
+    setShowDeleteAccount(true);
+  }}
+  style={{
+    background: "transparent",
+    border: "none",
+    color: "#7A858C",
+    fontSize: "13px",
+    cursor: "pointer",
+    textDecoration: "none",
+    padding: "8px 12px",
+  }}
+>
+  Delete Account
+</button>
+
+{showDeleteAccount && (
+  <div
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="delete-account-title"
+    style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(0, 0, 0, 0.55)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 1000,
+      padding: "20px",
+    }}
+  >
+    <div
+      style={{
+        background: "#FFFFFF",
+        borderRadius: "20px",
+        padding: "32px",
+        width: "100%",
+        maxWidth: "440px",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.2)",
+      }}
+    >
+      <h2
+        id="delete-account-title"
+        style={{ color: "#B42318", marginTop: 0 }}
+      >
+        Delete your account?
+      </h2>
+
+      <p style={{ color: "#52616B", lineHeight: 1.6 }}>
+        This action is permanent. Your DinnerCall account,
+        saved recipes, and associated account data will be deleted.
+        This cannot be undone.
+      </p>
+
+      <label
+        htmlFor="delete-password"
+        style={{ display: "block", fontWeight: 600, marginBottom: "8px" }}
+      >
+        Confirm your password
+      </label>
+
+      <input
+        id="delete-password"
+        type="password"
+        autoComplete="current-password"
+        value={deletePassword}
+        onChange={(e) => setDeletePassword(e.target.value)}
+        style={{ ...inputStyle, width: "100%", marginBottom: "20px" }}
+      />
+
+      <label
+        htmlFor="delete-confirmation"
+        style={{ display: "block", fontWeight: 600, marginBottom: "8px" }}
+      >
+        Type DELETE to confirm
+      </label>
+
+      <input
+        id="delete-confirmation"
+        type="text"
+        value={deleteConfirmation}
+        onChange={(e) => setDeleteConfirmation(e.target.value)}
+        placeholder="DELETE"
+        style={{ ...inputStyle, width: "100%", marginBottom: "16px" }}
+      />
+
+      {deleteAccountError && (
+        <p role="alert" style={{ color: "#B42318", fontSize: "14px" }}>
+          {deleteAccountError}
+        </p>
+      )}
+
+      <div style={{ display: "flex", gap: "12px", marginTop: "24px" }}>
+        <button
+          type="button"
+          disabled={deletingAccount}
+          onClick={() => {
+            setShowDeleteAccount(false);
+            setDeletePassword("");
+            setDeleteConfirmation("");
+            setDeleteAccountError("");
+          }}
+          style={{
+            flex: 1,
+            padding: "12px",
+            background: "#F3F4F6",
+            border: "none",
+            borderRadius: "10px",
+            cursor: "pointer",
+          }}
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          onClick={handleDeleteAccount}
+          disabled={
+            deletingAccount ||
+            !deletePassword ||
+            deleteConfirmation !== "DELETE"
+          }
+          style={{
+            flex: 1,
+            padding: "12px",
+            background:
+              deletingAccount ||
+              !deletePassword ||
+              deleteConfirmation !== "DELETE"
+                ? "#D1D5DB"
+                : "#B42318",
+            color: "#FFFFFF",
+            border: "none",
+            borderRadius: "10px",
+            cursor: "pointer",
+            fontWeight: 600,
+          }}
+        >
+          {deletingAccount ? "Deleting..." : "Delete Account"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 </div>
           <img
             src="/dinnercall-logo.png"
