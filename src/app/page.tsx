@@ -56,6 +56,43 @@ export default function HomePage() {
         >
           Try DinnerCall
         </a>
+
+
+<div
+  style={{
+    margin: "28px auto 0",
+    maxWidth: "520px",
+    padding: "16px 24px",
+    background: "#FFFFFF",
+    border: "1px solid #A7DCA1",
+    borderRadius: "14px",
+    textAlign: "center",
+  }}
+>
+  <p
+    style={{
+      color: "#2DA11B",
+      fontSize: "15px",
+      fontWeight: 700,
+      marginBottom: "6px",
+    }}
+  >
+    Premium Preview — Free Access
+  </p>
+  <p
+    style={{
+      color: "#52616B",
+      fontSize: "14px",
+      lineHeight: "1.6",
+      margin: 0,
+    }}
+  >
+    Enjoy complimentary access to all available DinnerCall features
+    during our introductory Premium Preview. No credit card required.
+  </p>
+</div>
+
+
       </section>
 
       <section

@@ -20,7 +20,25 @@ const {
   kidFriendly,
   mealType,
 } = await req.json();
+const normalizedIngredients = String(ingredients || "").toLowerCase();
+const normalizedAvoid = String(avoidIngredients || "").toLowerCase();
+const peanutRestriction =
+  /\bpeanuts?\b|\bgroundnuts?\b/i.test(normalizedAvoid);
 
+const peanutInIngredients =
+  /\bpeanuts?\b|\bgroundnuts?\b|\bpeanut butter\b/i.test(
+    normalizedIngredients
+  );
+
+if (peanutRestriction && peanutInIngredients) {
+  return NextResponse.json(
+    {
+      error:
+        "Your ingredients include peanuts, but you've listed peanuts as an ingredient to avoid. Please remove the conflicting ingredient before generating a recipe.",
+    },
+    { status: 400 }
+  );
+}
    
     const response = await client.responses.create({
       model: "gpt-4.1-mini",
@@ -69,6 +87,14 @@ IMPORTANT DINNER INTENT:
 - Do not default to generic lemon-herb, garlic-herb, or simply seasoned preparations when the user's dinner direction points toward a different flavor experience.
 - The user's additional written direction should take priority over the quick-choice selections if there is any conflict.
 - Still respect all avoid ingredients, allergies, time limits, serving size, and other explicit restrictions.
+
+CRITICAL FOOD ALLERGY RULES:
+- Food allergies and excluded ingredients always take priority over ingredients on hand, dinner preferences, and all other requests.
+- If an available ingredient conflicts with an allergy or exclusion, completely omit it from the recipe.
+- Never include a declared allergen in the recipe name, ingredient list, instructions, sauces, garnishes, or substitutions.
+- Treat phrases such as "peanuts", "peanut allergy", and "severe peanut allergy" as equivalent peanut exclusions.
+- Do not suggest peanut butter, peanut oil, peanut flour, or peanut-based sauces for someone avoiding peanuts.
+- If a safe alternative cannot be determined, do not invent a supposedly allergen-free version of the excluded ingredient.
 
 The recipe MUST be based primarily on the user's ingredients on hand.
 
@@ -210,6 +236,39 @@ Use U.S. kitchen measurements whenever possible. Prefer cups, tablespoons, teasp
     });
 
     const recipe = JSON.parse(response.output_text);
+
+const peanutAllergy =
+  /\bpeanut(s)?\b/i.test(String(avoidIngredients || ""));
+
+if (peanutAllergy) {
+  const ingredientText = [
+    ...(Array.isArray(recipe.ingredients) ? recipe.ingredients : []),
+    ...(Array.isArray(recipe.ingredientData)
+      ? recipe.ingredientData.map((item: { name?: string }) => item.name || "")
+      : []),
+  ].join(" ");
+
+  const instructionText = Array.isArray(recipe.steps)
+    ? recipe.steps
+        .map((step: { instruction?: string }) => step.instruction || "")
+        .join(" ")
+    : "";
+
+  const containsPeanuts =
+  /\b(?:peanuts?|groundnuts?|arachis(?:\s+hypogaea)?|goober\s+peas?)\b/i.test(
+    `${ingredientText} ${instructionText}`
+  );
+
+  if (containsPeanuts) {
+    return NextResponse.json(
+      {
+        error:
+          "We couldn't generate a recipe that meets your peanut allergy restriction. Please try again.",
+      },
+      { status: 422 }
+    );
+  }
+}
 
 console.log("INGREDIENT DATA:", recipe.ingredientData);
 

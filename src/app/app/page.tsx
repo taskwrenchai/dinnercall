@@ -1019,8 +1019,15 @@ const deleteSavedWeeklyPlan = async (indexToDelete: number) => {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Something went wrong.");
-      } else {
+  setError(data.error || "Something went wrong.");
+
+  setTimeout(() => {
+    document.getElementById("recipe-error")?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }, 300);
+} else {
         setRecipe(data.recipe);
 
         // Track successful recipe generation
@@ -1058,8 +1065,15 @@ void (async () => {
         }, 300);
       }
     } catch {
-      setError("Something went wrong.");
-    } finally {
+  setError("Something went wrong.");
+
+  setTimeout(() => {
+    document.getElementById("recipe-error")?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }, 300);
+} finally {
       setLoading(false);
     }
   };
@@ -1332,7 +1346,9 @@ void (async () => {
 
         {error && (
           <div
-            style={{
+          id="recipe-error"
+          role="alert"  
+          style={{
               background: "#FFF4E5",
               border: "1px solid #FFD8A8",
               color: "#8A5A00",
@@ -2374,6 +2390,23 @@ textUnderlineOffset: "3px",
                 Clear Recipe
               </button>
             </div>
+
+<p
+  style={{
+    marginTop: "24px",
+    paddingTop: "16px",
+    borderTop: "1px solid #E5E7EB",
+    color: "#6B7280",
+    fontSize: "13px",
+    lineHeight: "1.6",
+  }}
+>
+  <strong>Food allergy reminder:</strong> AI-generated recipes may
+  contain errors. Always verify ingredients, labels, and
+  substitutions, especially when managing food allergies or
+  dietary restrictions.
+</p>
+
           </section>
         )}
 
@@ -2527,6 +2560,44 @@ onChange={(e) => setFeedbackMessage(e.target.value)}
 </div>
 
       </section>
+
+<footer
+  style={{
+    marginTop: "40px",
+    padding: "24px 16px",
+    borderTop: "1px solid #E5E7EB",
+    textAlign: "center",
+    fontSize: "14px",
+    color: "#6B7280",
+  }}
+>
+  <a
+    href="/privacy"
+    style={{ color: "#2DA11B", textDecoration: "none" }}
+  >
+    Privacy Policy
+  </a>
+
+  <span style={{ margin: "0 12px", color: "#9CA3AF" }}>|</span>
+
+  <a
+    href="/terms"
+    style={{ color: "#2DA11B", textDecoration: "none" }}
+  >
+    Terms of Service
+  </a>
+
+<span style={{ margin: "0 12px", color: "#9CA3AF" }}>|</span>
+
+<a
+  href="mailto:support@getdinnercall.com"
+  style={{ color: "#2DA11B", textDecoration: "none" }}
+>
+  Contact Support
+</a>
+
+</footer>
+
     </main>
   );
 }
